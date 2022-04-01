@@ -24,7 +24,7 @@ extensions.add("platform", platform)
 setupLoomPlugin()
 setupPreprocessPlugin()
 configureJavaVersion()
-configureResources()
+afterEvaluate { configureResources() } // delayed because it needs project.version
 parent?.let(::inheritConfigurationFrom)
 
 fun setupLoomPlugin() {
