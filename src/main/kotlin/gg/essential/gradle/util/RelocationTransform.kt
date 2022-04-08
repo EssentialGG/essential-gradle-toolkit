@@ -40,10 +40,16 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
         val relocations: SetProperty<Relocation>
 
         @get:Input
+        val remapStringsIn: SetProperty<String>
+
+        @get:Input
         val renames: SetProperty<Rename>
 
         fun relocate(sourcePackage: String, targetPackage: String) =
             relocations.add(Relocation(sourcePackage, targetPackage))
+
+        fun remapStringsIn(cls: String) =
+            remapStringsIn.add(cls)
 
         fun rename(sourceFile: String, targetFile: String) =
             renames.add(Rename(sourceFile, targetFile))
@@ -57,12 +63,23 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
 
     override fun transform(outputs: TransformOutputs) {
         val fileMap = parameters.renames.get().associate { it.sourceFile to it.targetFile }
-        val packageMap = parameters.relocations.get().associate {
+
+        val jvmPackageMap = parameters.relocations.get().associate {
             it.sourcePackage.replace('.', '/') + '/' to it.targetPackage.replace('.', '/') + '/'
         }
-        val remapper = object : Remapper() {
-            override fun map(typeName: String): String {
-                for ((sourcePackage, targetPackage) in packageMap) {
+        val javaPackageMap = jvmPackageMap.map { (source, target) ->
+            source.replace('/', '.') to target.replace('/', '.')
+        }.toMap()
+
+        val remapStringsInFiles = parameters.remapStringsIn.get().map {
+            it.replace('.', '/') + ".class"
+        }
+
+        open class ClassPrefixRemapper : Remapper() {
+            override fun map(typeName: String): String = map(jvmPackageMap, typeName)
+
+            protected fun map(mappings: Map<String, String>, typeName: String): String {
+                for ((sourcePackage, targetPackage) in mappings) {
                     if (typeName.startsWith(sourcePackage)) {
                         return targetPackage + typeName.substring(sourcePackage.length)
                     }
@@ -70,6 +87,17 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
                 return typeName
             }
         }
+        val baseRemapper = ClassPrefixRemapper()
+
+        class ClassPrefixAndStringsRemapper : ClassPrefixRemapper() {
+            override fun mapValue(value: Any?): Any {
+                if (value is String) {
+                    return map(jvmPackageMap, map(javaPackageMap, value))
+                }
+                return super.mapValue(value)
+            }
+        }
+        val stringRemapper = ClassPrefixAndStringsRemapper()
 
         val input = input.get().asFile
         val output = outputs.file(input.nameWithoutExtension + "-relocated.jar")
@@ -77,6 +105,7 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
             while (true) {
                 val entry = jarIn.nextJarEntry ?: break
                 val originalBytes = jarIn.readBytes()
+                val remapper = if (entry.name in remapStringsInFiles) stringRemapper else baseRemapper
 
                 val modifiedBytes = if (entry.name.endsWith(".class")) {
                     val reader = ClassReader(originalBytes)
