@@ -108,4 +108,17 @@ fun inheritConfigurationFrom(parent: Project) {
     if (parentBase != null) {
         base.archivesName.convention(parentBase.archivesName.map { "$it ${project.name}" })
     }
+
+    afterEvaluate {
+        tasks.withType<KotlinCompile> {
+            kotlinOptions {
+                if ("-module-name" !in freeCompilerArgs) {
+                    val moduleName = project.findProperty("baseArtifactId")?.toString()
+                            ?: parentBase?.archivesName?.orNull
+                            ?: parent.name.toLowerCase()
+                    freeCompilerArgs = freeCompilerArgs + listOf("-module-name", moduleName)
+                }
+            }
+        }
+    }
 }
