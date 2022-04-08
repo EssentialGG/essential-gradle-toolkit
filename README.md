@@ -295,6 +295,25 @@ dependencies {
 }
 ```
 
+### `internal` configuration
+
+The [`makeConfigurationForInternalDependencies` method](src/main/kotlin/gg/essential/gradle/util/internalConfiguration.kt) creates a new configuration (by default named `internal`) which can be used to declare dependencies which are completely internal to the project.
+
+These dependencies will automatically be included in the generated jar file and won't be visible in the maven metadata.\
+Most importantly they can (and should!) also be relocated to your package, so they do not conflict with other mods bundling the same code.
+
+```kotlin
+val internal = makeConfigurationForInternalDependencies {
+    relocate("org.commonmark", "com.example.libs.commonmark")
+}
+
+dependencies {
+    internal("org.commonmark:commonmark:0.17.1")
+    internal("org.commonmark:commonmark-ext-gfm-strikethrough:0.17.1")
+    internal("org.commonmark:commonmark-ext-ins:0.17.1")
+}
+```
+
 ### versionFromBuildIdAndBranch
 
 Generates a simple project version based on the current branch and the `BUILD_ID` property (for CI builds) according to the following schema.
