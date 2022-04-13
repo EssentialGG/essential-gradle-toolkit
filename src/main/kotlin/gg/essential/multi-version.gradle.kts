@@ -107,6 +107,8 @@ fun inheritConfigurationFrom(parent: Project) {
     val parentBase = parent.extensions.findByType<BasePluginExtension>()
     if (parentBase != null) {
         base.archivesName.convention(parentBase.archivesName.map { "$it ${project.name}" })
+    } else {
+        base.archivesName.convention("${parent.name} ${project.name}")
     }
 
     afterEvaluate {
