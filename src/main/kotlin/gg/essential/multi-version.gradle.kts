@@ -114,11 +114,10 @@ fun inheritConfigurationFrom(parent: Project) {
     afterEvaluate {
         tasks.withType<KotlinCompile> {
             kotlinOptions {
-                if ("-module-name" !in freeCompilerArgs) {
-                    val moduleName = project.findProperty("baseArtifactId")?.toString()
+                if (moduleName == null && "-module-name" !in freeCompilerArgs) {
+                    moduleName = project.findProperty("baseArtifactId")?.toString()
                             ?: parentBase?.archivesName?.orNull
                             ?: parent.name.toLowerCase()
-                    freeCompilerArgs = freeCompilerArgs + listOf("-module-name", moduleName)
                 }
             }
         }
