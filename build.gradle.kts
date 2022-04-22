@@ -34,6 +34,7 @@ dependencies {
     api(libs.preprocessor)
     implementation(libs.asm)
     implementation(libs.guava)
+    implementation(libs.kotlinx.metadata.jvm)
 }
 
 publishing {

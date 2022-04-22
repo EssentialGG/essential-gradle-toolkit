@@ -272,7 +272,7 @@ dependencies {
 
 ### RelocationTransform
 
-A [Gradle artifact transform](https://docs.gradle.org/current/userguide/artifact_transforms.html) which relocates packages and files.
+A [Gradle artifact transform] which relocates packages and files.
 Usually used with [prebundle](#prebundle).
 
 See [the docs on the class](src/main/kotlin/gg/essential/gradle/util/RelocationTransform.kt) for more details.
@@ -314,6 +314,58 @@ dependencies {
 }
 ```
 
+### common project
+If your project has a significant amount of platform/version-independent code, it may be advisable to extract that code into a `common` sub-project, so it only needs to be compiled once.
+
+You can do this using standard Gradle procedures.
+Some additional utilities are provided here to improve the scope of which code can be considered common.
+
+#### [StripReferencesTransform](src/main/kotlin/gg/essential/gradle/multiversion/StripReferencesTransform.kt)
+
+If you depend on libraries which have roughly the same ABI across versions (not referencing any Minecraft classes in most of it), like [UniversalCraft] and [Elementa], it may be tempting to directly depend on those from your common project.
+But this will fail when you try to extend classes which reference Minecraft classes because the compiler should not be able to see those.
+
+This [Gradle artifact transform] removes all references to classes within a given package, thereby fixing this issue.
+```kotlin
+val common = registerStripReferencesAttribute("common") {
+    excludes.add("net.minecraft")
+}
+
+dependencies {
+    // Using `compileOnly` because we only want to compile against the "common" UniversalCraft jar,
+    // we don't want it to be present at runtime.
+    // No remapping is necessary because we plan to strip all references to Minecraft anyway.
+    // The specific Minecraft version which one depends on doesn't really matter. It is generally advisable to use the
+    // oldest version one supports, so one does not accidentally use methods only available in newer versions.
+    compileOnly("gg.essential:universalcraft-1.8.9-forge:master-SNAPSHOT") {
+        // Setting the attribute to `true` will cause the transformer to apply to this specific artifact
+        attributes { attribute(common, true) }
+    }
+}
+```
+
+#### [mergePlatformSpecifics](src/main/kotlin/gg/essential/gradle/multiversion/mergePlatformSpecifics.kt)
+
+If the vast majority of your code is platform-independent
+but you have a small amount of API methods (where removing them would constitute a breaking change) which depend on platform-specific types,
+this would ordinarily prevent you from moving the entire file (and any files depending on it) to the common project.
+
+For such cases, this method allows you to define a class with the same name (suffixed with `_platform`) in your
+platform-specific projects and declare the API methods in there.
+Then, after the common classes have been combined into a single jar file with the platform-specific code, this method
+can be called on the jar file to merge the platform-specific classes into the common ones.
+
+```kotlin
+tasks.jar {
+    from(/* ... */) // add your common code in whatever way you see fit
+    mergePlatformSpecifics() // enable merging of platform-specific files
+}
+```
+
+This preserves the ABI of published artifacts but does not allow those methods to be used in your development environment (because they are only merged at build time).
+If that is something you need, you should move the method implementation to an internal method, use that throughout your project, and have the API method simply delegate to it.
+If you wish to run a third-party mod which depends on the API method in your development environment, you're out of luck.
+
 ### versionFromBuildIdAndBranch
 
 Generates a simple project version based on the current branch and the `BUILD_ID` property (for CI builds) according to the following schema.
@@ -336,3 +388,6 @@ See `LICENSE.md` for the full license text.
 [preprocessor]: https://github.com/ReplayMod/preprocessor
 [binary-compatibility-validator]: https://github.com/Kotlin/binary-compatibility-validator
 [MixinExtras]: https://github.com/LlamaLad7/MixinExtras
+[Gradle artifact transform]: https://docs.gradle.org/current/userguide/artifact_transforms.html
+[UniversalCraft]: https://github.com/EssentialGG/UniversalCraft
+[Elementa]: https://github.com/EssentialGG/Elementa
