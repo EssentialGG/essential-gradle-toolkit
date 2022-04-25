@@ -70,6 +70,9 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
         val javaPackageMap = jvmPackageMap.map { (source, target) ->
             source.replace('/', '.') to target.replace('/', '.')
         }.toMap()
+        val absoluteFolderMap = jvmPackageMap.map { (source, target) ->
+            "/$source" to "/$target"
+        }.toMap()
 
         val remapStringsInFiles = parameters.remapStringsIn.get().map {
             it.replace('.', '/') + ".class"
@@ -92,7 +95,7 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
         class ClassPrefixAndStringsRemapper : ClassPrefixRemapper() {
             override fun mapValue(value: Any?): Any {
                 if (value is String) {
-                    return map(jvmPackageMap, map(javaPackageMap, value))
+                    return map(absoluteFolderMap, map(jvmPackageMap, map(javaPackageMap, value)))
                 }
                 return super.mapValue(value)
             }
