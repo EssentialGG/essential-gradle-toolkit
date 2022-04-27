@@ -366,6 +366,25 @@ This preserves the ABI of published artifacts but does not allow those methods t
 If that is something you need, you should move the method implementation to an internal method, use that throughout your project, and have the API method simply delegate to it.
 If you wish to run a third-party mod which depends on the API method in your development environment, you're out of luck.
 
+#### [excludeKotlinDefaultImpls](src/main/kotlin/gg/essential/gradle/multiversion/excludeKotlinDefaultImpls.kt)
+
+Removes Kotlin's `$DefaultImpls` classes (and any references to them) from the given jar file as if the Kotlin code
+was compiled with `-Xjvm-default=all`.
+
+This is useful if you have a platform-independent "common" project containing the vast majority of your code but, to
+maintain backwards compatibility, you need to compile with `-Xjvm-default=all-compatibility` for some platforms.
+Ordinarily this would then leak the DefaultImpls to all platforms and you'll be stuck with `all-compatibility` for
+all of them (even when that would not have been required for modern versions).
+
+For such cases, this method allows you to strip the `$DefaultImpls` classes from a given platform-specific jar file:
+```kotlin
+tasks.jar {
+    if (platform.mcVersion >= 11400) {
+        excludeKotlinDefaultImpls()
+    }
+}
+```
+
 ### versionFromBuildIdAndBranch
 
 Generates a simple project version based on the current branch and the `BUILD_ID` property (for CI builds) according to the following schema.
