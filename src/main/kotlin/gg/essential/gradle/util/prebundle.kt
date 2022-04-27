@@ -27,7 +27,7 @@ import java.util.zip.ZipEntry
  * The given [jijName] determines the path+name of the inner jar within the outer jar.
  */
 fun Project.prebundle(configuration: Configuration, jijName: String? = null, configure: PatternFilterable.() -> Unit = {}): FileCollection {
-    val output = rootDir
+    val output = projectDir
         .resolve(".gradle")
         .resolve("prebundled-jars")
         .resolve("${configuration.name}.jar")
