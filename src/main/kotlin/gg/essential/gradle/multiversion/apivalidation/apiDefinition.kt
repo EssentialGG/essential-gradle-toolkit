@@ -3,7 +3,11 @@ package gg.essential.gradle.multiversion.apivalidation
 class Parser(
     private val defaultProjects: Set<String>
 ) {
-    fun parseFile(str: String) = ApiFile(str.split("\n\n").mapNotNull(::parseClass).toMutableList())
+    fun parseFile(str: String): ApiFile {
+        val normalizedStr = str.lineSequence().joinToString("\n")
+        val classes = normalizedStr.split("\n\n").mapNotNull(::parseClass)
+        return ApiFile(classes.toMutableList())
+    }
 
     private fun parseClass(str: String): ApiClass? {
         val parts = str.split("{", "}").map { it.trim() }
@@ -50,7 +54,7 @@ class Parser(
 class Writer(
     private val defaultProjects: Set<String>,
 ) {
-    fun write(file: ApiFile) = file.str()
+    fun write(file: ApiFile) = file.str().lines().joinToString(System.lineSeparator())
 
     private fun ApiFile.str() = classes.joinToString("") { it.str() + "\n\n" }
 
