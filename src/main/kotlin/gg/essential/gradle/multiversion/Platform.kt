@@ -49,7 +49,7 @@ data class Platform(
                 ?.let { return it.toString() }
 
             // If that's not set, try to infer it from the project name
-            Regex("""(\d+)\.(\d+)(\.(\d+))""").find(project.name)
+            Regex("""(\d+)\.(\d+)(\.(\d+))?""").find(project.name)
                 ?.let { return it.value }
 
             throw GradleException(
