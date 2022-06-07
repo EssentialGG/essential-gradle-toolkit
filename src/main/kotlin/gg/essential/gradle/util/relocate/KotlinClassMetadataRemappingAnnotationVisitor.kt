@@ -31,12 +31,9 @@ import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.Remapper
 import org.objectweb.asm.tree.AnnotationNode
-import org.slf4j.LoggerFactory
 
 internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remapper: Remapper, val next: AnnotationVisitor, val className: String?) :
     AnnotationNode(Opcodes.ASM9, KotlinMetadataRemappingClassVisitor.ANNOTATION_DESCRIPTOR) {
-
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     private var _name: String? = null
 
@@ -51,13 +48,6 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
         val header = readHeader() ?: return
         val metadataVersion = compatibleKotlinMetadataVersion(header.metadataVersion)
 
-        val headerVersion = KotlinVersion(header.metadataVersion[0], header.metadataVersion[1], 0)
-        val currentMinorVersion = KotlinVersion(KotlinVersion.CURRENT.major, KotlinVersion.CURRENT.minor, 0)
-
-        if (headerVersion != currentMinorVersion) {
-            logger.info("Kotlin metadata for class ($className) as it was built using a different major Kotlin version (${header.metadataVersion[0]}.${header.metadataVersion[1]}.x) while the remapper is using (${KotlinVersion.CURRENT}).")
-        }
-
         when (val metadata = KotlinClassMetadata.read(header)) {
             is KotlinClassMetadata.Class -> {
                 val klass = metadata.toKmClass()
@@ -65,7 +55,6 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 klass.accept(RemappingKmVisitors(remapper).RemappingKmClassVisitor(writer))
                 val remapped = writer.write(metadataVersion, header.extraInt).header
                 writeClassHeader(remapped)
-                validateKotlinClassHeader(remapped, header)
             }
             is KotlinClassMetadata.SyntheticClass -> {
                 val klambda = metadata.toKmLambda()
@@ -75,7 +64,6 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                     klambda.accept(RemappingKmVisitors(remapper).RemappingKmLambdaVisitor(writer))
                     val remapped = writer.write(metadataVersion, header.extraInt).header
                     writeClassHeader(remapped)
-                    validateKotlinClassHeader(remapped, header)
                 } else {
                     accept(next)
                 }
@@ -86,7 +74,6 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
                 val remapped = writer.write(metadataVersion, header.extraInt).header
                 writeClassHeader(remapped)
-                validateKotlinClassHeader(remapped, header)
             }
             is KotlinClassMetadata.MultiFileClassPart -> {
                 val kpackage = metadata.toKmPackage()
@@ -94,7 +81,6 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
                 val remapped = writer.write(metadata.facadeClassName, metadataVersion, metadata.header.extraInt).header
                 writeClassHeader(remapped)
-                validateKotlinClassHeader(remapped, header)
             }
             is KotlinClassMetadata.MultiFileClassFacade, is KotlinClassMetadata.Unknown, null -> {
                 // do nothing
@@ -151,12 +137,5 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
         }
 
         newNode.accept(next)
-    }
-
-    private fun validateKotlinClassHeader(remapped: KotlinClassHeader, original: KotlinClassHeader) {
-        // This can happen when the remapper is ran on a kotlin version that does not match the version the class was compiled with.
-        if (remapped.data2.size != original.data2.size) {
-            logger.info("Kotlin class metadata size mismatch: data2 size does not match original in class $className. New: ${remapped.data2.size} Old: ${original.data2.size}")
-        }
     }
 }
