@@ -1,5 +1,6 @@
 package gg.essential.gradle.util
 
+import gg.essential.gradle.util.relocate.KotlinMetadataRemappingClassVisitor
 import org.gradle.api.Project
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction
@@ -115,7 +116,7 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
                     // Not copying the constant pool cause that leaves references to the old classes which, while any
                     // lazy tool will never end up resolving them, do get resolved by e.g. proguard.
                     val writer = ClassWriter(0)
-                    reader.accept(ClassRemapper(writer, remapper), 0)
+                    reader.accept(ClassRemapper(KotlinMetadataRemappingClassVisitor(remapper, writer), remapper), 0)
                     writer.toByteArray()
                 } else {
                     originalBytes
