@@ -1,5 +1,6 @@
 package gg.essential.gradle.multiversion
 
+import gg.essential.gradle.util.compatibleKotlinMetadataVersion
 import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmType
 import kotlinx.metadata.KmValueParameter
@@ -169,13 +170,16 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
             override fun visitEnd() {
                 var metadata = kotlinMetadata ?: return
 
+                val extraInt = metadata.header.extraInt
+                val metadataVersion = compatibleKotlinMetadataVersion(metadata.header.metadataVersion)
+
                 when (metadata) {
                     is KotlinClassMetadata.Class -> {
                         val cls = metadata.toKmClass()
                         cls.supertypes.removeIf { excluded(it.classifier) }
                         cls.properties.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) }
                         cls.functions.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) || excluded(it.valueParameters) }
-                        metadata = KotlinClassMetadata.Class.Writer().apply(cls::accept).write()
+                        metadata = KotlinClassMetadata.Class.Writer().apply(cls::accept).write(metadataVersion, extraInt)
                     }
                     else -> {}
                 }

@@ -1,5 +1,6 @@
 package gg.essential.gradle.multiversion
 
+import gg.essential.gradle.util.compatibleKotlinMetadataVersion
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmDeclarationContainer
 import kotlinx.metadata.KmPackage
@@ -102,18 +103,22 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
     val targetMetadata = targetClass.kotlinMetadata ?: return
     val sourceMetadata = sourceClass.kotlinMetadata ?: return
 
+    val sourceHeader = sourceMetadata.header
+    val extraInt = sourceHeader.extraInt
+    val metadataVersion = compatibleKotlinMetadataVersion(sourceHeader.metadataVersion)
+
     val mergedMetadata = when {
         sourceMetadata is KotlinClassMetadata.Class && targetMetadata is KotlinClassMetadata.Class -> {
             val targetKmClass = targetMetadata.toKmClass()
             val sourceKmClass = sourceMetadata.toKmClass()
             merge(targetKmClass, sourceKmClass)
-            KotlinClassMetadata.Class.Writer().apply(targetKmClass::accept).write()
+            KotlinClassMetadata.Class.Writer().apply(targetKmClass::accept).write(metadataVersion, extraInt)
         }
         sourceMetadata is KotlinClassMetadata.FileFacade && targetMetadata is KotlinClassMetadata.FileFacade -> {
             val targetKmPackage = targetMetadata.toKmPackage()
             val sourceKmPackage = sourceMetadata.toKmPackage()
             merge(targetKmPackage, sourceKmPackage)
-            KotlinClassMetadata.FileFacade.Writer().apply(targetKmPackage::accept).write()
+            KotlinClassMetadata.FileFacade.Writer().apply(targetKmPackage::accept).write(metadataVersion, extraInt)
         }
         else -> throw UnsupportedOperationException("Don't know how to merge ${sourceMetadata.javaClass} into ${targetMetadata.javaClass}")
     }

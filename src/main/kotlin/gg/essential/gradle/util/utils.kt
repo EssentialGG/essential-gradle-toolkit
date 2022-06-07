@@ -15,3 +15,11 @@ internal fun checkJavaVersion(minVersion: JavaVersion) {
         ).joinToString("\n"))
     }
 }
+
+internal fun compatibleKotlinMetadataVersion(version: IntArray): IntArray {
+    // Upgrade versions older than 1.4 to 1.4 in accordance with https://youtrack.jetbrains.com/issue/KT-41011
+    if (version.size < 2 || version[0] < 1 || version[0] <= 1 && version[1] < 4) {
+        return intArrayOf(1, 4)
+    }
+    return version
+}
