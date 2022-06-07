@@ -146,7 +146,19 @@ private const val KotlinMetadata_Desc = "Lkotlin/Metadata;"
 private var ClassNode.kotlinMetadata: KotlinClassMetadata?
     get() {
         val annotation = visibleAnnotations.find { it.desc == KotlinMetadata_Desc } ?: return null
-        val values = annotation.values.windowed(2, 2).associate { (key, value) -> key to value }
+        return annotation.kotlinMetadata
+    }
+    set(value) {
+        visibleAnnotations.removeIf { it.desc == KotlinMetadata_Desc }
+
+        val annotation = AnnotationNode(KotlinMetadata_Desc)
+        annotation.kotlinMetadata = value ?: return
+        visibleAnnotations.add(annotation)
+    }
+
+internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
+    get() {
+        val values = values.windowed(2, 2).associate { (key, value) -> key to value }
         return KotlinClassMetadata.read(with(values) {
             @Suppress("UNCHECKED_CAST")
             KotlinClassHeader(
@@ -161,11 +173,8 @@ private var ClassNode.kotlinMetadata: KotlinClassMetadata?
         })
     }
     set(value) {
-        visibleAnnotations.removeIf { it.desc == KotlinMetadata_Desc }
-
-        val annotation = AnnotationNode(KotlinMetadata_Desc)
         with((value ?: return).header) {
-            annotation.values = listOf(
+            values = listOf(
                 "k", kind,
                 "mv", metadataVersion.toList(),
                 "d1", data1.toList(),
@@ -175,5 +184,4 @@ private var ClassNode.kotlinMetadata: KotlinClassMetadata?
                 "xi", extraInt,
             )
         }
-        visibleAnnotations.add(annotation)
     }

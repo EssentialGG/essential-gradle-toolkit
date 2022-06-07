@@ -3,7 +3,6 @@ package gg.essential.gradle.multiversion
 import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmType
 import kotlinx.metadata.KmValueParameter
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.gradle.api.Project
 import org.gradle.api.artifacts.transform.InputArtifact
@@ -23,6 +22,7 @@ import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import org.objectweb.asm.tree.AnnotationNode
 import java.io.Closeable
 import java.io.File
 import java.util.jar.JarInputStream
@@ -113,7 +113,7 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
 
         override fun visitAnnotation(descriptor: String, visible: Boolean): AnnotationVisitor {
             return if (descriptor == "Lkotlin/Metadata;") {
-                KotlinMetadataTransformer(super.visitAnnotation(descriptor, visible))
+                KotlinMetadataTransformer(super.visitAnnotation(descriptor, visible), descriptor)
             } else  {
                 super.visitAnnotation(descriptor, visible)
             }
@@ -165,33 +165,9 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
             }
         }
 
-        inner class KotlinMetadataTransformer(inner: AnnotationVisitor) : AnnotationVisitor(Opcodes.ASM9, inner) {
-            private var kind: Int? = null
-            private var metadataVersion: IntArray? = null
-            private var data1: Array<String>? = null
-            private var data2: Array<String>? = null
-            private var extraString: String? = null
-            private var packageName: String? = null
-            private var extraInt: Int? = null
-
-            override fun visit(name: String, value: Any?) = when(name) {
-                "k" -> kind = value as Int?
-                "mv" -> metadataVersion = value as IntArray?
-                "xs" -> extraString = value as String?
-                "pn" -> packageName = value as String?
-                "xi" -> extraInt = value as Int?
-                else -> {}
-            }
-
-            override fun visitArray(name: String?): AnnotationVisitor? = when (name) {
-                "d1" -> StringArrayVisitor { data1 = it }
-                "d2" -> StringArrayVisitor { data2 = it }
-                else -> null
-            }
-
+        inner class KotlinMetadataTransformer(val inner: AnnotationVisitor, desc: String) : AnnotationNode(Opcodes.ASM9, desc) {
             override fun visitEnd() {
-                val header = KotlinClassHeader(kind, metadataVersion, data1, data2, extraString, packageName, extraInt)
-                var metadata = KotlinClassMetadata.read(header) ?: return
+                var metadata = kotlinMetadata ?: return
 
                 when (metadata) {
                     is KotlinClassMetadata.Class -> {
@@ -204,39 +180,10 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
                     else -> {}
                 }
 
-                with(metadata.header) {
-                    super.visit("k", kind)
-                    super.visit("mv", metadataVersion)
-                    super.visit("xs", extraString)
-                    super.visit("pn", packageName)
-                    super.visit("xi", extraInt)
-                    super.visitArray("d1").let {
-                        for (s in data1) {
-                            it.visit("", s)
-                        }
-                        it.visitEnd()
-                    }
-                    super.visitArray("d2").let {
-                        for (s in data2) {
-                            it.visit("", s)
-                        }
-                        it.visitEnd()
-                    }
-                }
+                kotlinMetadata = metadata
 
-                super.visitEnd()
+                accept(inner)
             }
-        }
-    }
-
-    class StringArrayVisitor(private val result: (Array<String>) -> Unit) : AnnotationVisitor(Opcodes.ASM9) {
-        private val list = mutableListOf<String>()
-        override fun visit(name: String?, value: Any?) {
-            list.add(value.toString())
-        }
-
-        override fun visitEnd() {
-            result(list.toTypedArray())
         }
     }
 
