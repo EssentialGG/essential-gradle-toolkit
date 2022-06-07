@@ -24,6 +24,7 @@
 
 package gg.essential.gradle.util.relocate
 
+import gg.essential.gradle.util.compatibleKotlinMetadataVersion
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.objectweb.asm.AnnotationVisitor
@@ -48,6 +49,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
         super.visitEnd()
 
         val header = readHeader() ?: return
+        val metadataVersion = compatibleKotlinMetadataVersion(header.metadataVersion)
 
         val headerVersion = KotlinVersion(header.metadataVersion[0], header.metadataVersion[1], 0)
         val currentMinorVersion = KotlinVersion(KotlinVersion.CURRENT.major, KotlinVersion.CURRENT.minor, 0)
@@ -61,7 +63,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 val klass = metadata.toKmClass()
                 val writer = KotlinClassMetadata.Class.Writer()
                 klass.accept(RemappingKmVisitors(remapper).RemappingKmClassVisitor(writer))
-                val remapped = writer.write(header.metadataVersion, header.extraInt).header
+                val remapped = writer.write(metadataVersion, header.extraInt).header
                 writeClassHeader(remapped)
                 validateKotlinClassHeader(remapped, header)
             }
@@ -71,7 +73,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 if (klambda != null) {
                     val writer = KotlinClassMetadata.SyntheticClass.Writer()
                     klambda.accept(RemappingKmVisitors(remapper).RemappingKmLambdaVisitor(writer))
-                    val remapped = writer.write(header.metadataVersion, header.extraInt).header
+                    val remapped = writer.write(metadataVersion, header.extraInt).header
                     writeClassHeader(remapped)
                     validateKotlinClassHeader(remapped, header)
                 } else {
@@ -82,7 +84,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 val kpackage = metadata.toKmPackage()
                 val writer = KotlinClassMetadata.FileFacade.Writer()
                 kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
-                val remapped = writer.write(header.metadataVersion, header.extraInt).header
+                val remapped = writer.write(metadataVersion, header.extraInt).header
                 writeClassHeader(remapped)
                 validateKotlinClassHeader(remapped, header)
             }
@@ -90,7 +92,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
                 val kpackage = metadata.toKmPackage()
                 val writer = KotlinClassMetadata.MultiFileClassPart.Writer()
                 kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
-                val remapped = writer.write(metadata.facadeClassName, metadata.header.metadataVersion, metadata.header.extraInt).header
+                val remapped = writer.write(metadata.facadeClassName, metadataVersion, metadata.header.extraInt).header
                 writeClassHeader(remapped)
                 validateKotlinClassHeader(remapped, header)
             }
