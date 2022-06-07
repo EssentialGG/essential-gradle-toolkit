@@ -179,14 +179,14 @@ internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
     }
     set(value) {
         with((value ?: return).header) {
-            values = listOf(
-                "k", kind,
-                "mv", metadataVersion.toList(),
-                "d1", data1.toList(),
-                "d2", data2.toList(),
-                "xs", extraString,
-                "pn", packageName,
-                "xi", extraInt,
-            )
+            values = mapOf(
+                "k" to kind,
+                "mv" to metadataVersion.toList(),
+                "d1" to data1.toList(),
+                "d2" to data2.toList(),
+                "xs" to extraString.takeIf { it != "" },
+                "pn" to packageName.takeIf { it != "" },
+                "xi" to extraInt,
+            ).filterValues { it != null }.flatMap { listOf(it.key, it.value) }
         }
     }
