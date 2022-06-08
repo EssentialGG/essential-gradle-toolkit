@@ -19,6 +19,7 @@ val revisions = mutableListOf<Revision>()
 
 revisions.add(Revision(
     yarn = mapOf(
+        11900 to "1.19+build.1:v2",
         11802 to "1.18.2+build.2:v2",
         11801 to "1.18.1+build.22:v2",
         11701 to "1.17.1+build.39:v2",
