@@ -3,13 +3,7 @@ package gg.essential
 import com.replaymod.gradle.preprocess.PreprocessExtension
 import com.replaymod.gradle.preprocess.PreprocessPlugin
 import gg.essential.gradle.multiversion.Platform
-import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap
-import org.gradle.api.Project
-import org.gradle.api.plugins.BasePluginExtension
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaToolchainSpec
+import gg.essential.gradle.util.setupLoomPlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -21,23 +15,15 @@ val platform = Platform.of(project)
 
 extensions.add("platform", platform)
 
-setupLoomPlugin()
+setupLoomPlugin(platform) {
+    runConfigs.all {
+        isIdeConfigGenerated = true
+    }
+}
 setupPreprocessPlugin()
 configureJavaVersion()
 afterEvaluate { configureResources() } // delayed because it needs project.version
 parent?.let(::inheritConfigurationFrom)
-
-fun setupLoomPlugin() {
-    extra.set("loom.platform", if (platform.isForge) "forge" else "fabric")
-
-    apply<LoomGradlePluginBootstrap>()
-
-    extensions.configure<LoomGradleExtensionAPI> {
-        runConfigs.all {
-            isIdeConfigGenerated = true
-        }
-    }
-}
 
 fun setupPreprocessPlugin() {
     apply<PreprocessPlugin>()

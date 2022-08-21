@@ -1,7 +1,14 @@
 package gg.essential.gradle.util
 
+import gg.essential.gradle.multiversion.Platform
+import net.fabricmc.loom.api.LoomGradleExtensionAPI
+import net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.extra
 
 internal fun checkJavaVersion(minVersion: JavaVersion) {
     if (JavaVersion.current() < minVersion) {
@@ -22,4 +29,14 @@ internal fun compatibleKotlinMetadataVersion(version: IntArray): IntArray {
         return intArrayOf(1, 4)
     }
     return version
+}
+
+fun Project.setupLoomPlugin(platform: Platform, block: LoomGradleExtensionAPI.(platform: Platform) -> Unit) {
+    extra.set("loom.platform", if (platform.isForge) "forge" else "fabric")
+
+    apply<LoomGradlePluginBootstrap>()
+
+    extensions.configure<LoomGradleExtensionAPI> {
+        block(platform)
+    }
 }
