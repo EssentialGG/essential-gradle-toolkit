@@ -5,5 +5,5 @@ plugins {
 }
 
 project.dependencies {
-    annotationProcessor("gg.essential.lib:mixinextras:0.0.6")
+    annotationProcessor("gg.essential.lib:mixinextras:0.0.12")
 }
