@@ -48,7 +48,7 @@ private fun Project.bundle(configuration: Configuration, filter: PatternSet, jij
     val hash = configuration.computeHash().apply {
         update(filter.hashCode().toBigInteger().toByteArray())
         update(jijName?.toByteArray() ?: byteArrayOf())
-        update(byteArrayOf(0, 0, 0, 1)) // code version, incremented with each semantic change
+        update(byteArrayOf(0, 0, 0, 2)) // code version, incremented with each semantic change
     }.digest()
     val hashFile = output.resolveSibling(output.name + ".md5")
     if (hashFile.exists() && hashFile.readBytes().contentEquals(hash) && output.exists()) {
@@ -75,7 +75,7 @@ private fun Project.bundle(configuration: Configuration, filter: PatternSet, jij
                     if (!visitedEntries.add(path)) return@visit
                     if (!spec.isSatisfiedBy(this)) return@visit
 
-                    jarOut.putNextEntry(ZipEntry(if (isDirectory) "$path/" else path))
+                    jarOut.putNextEntry(ZipEntry(if (isDirectory) "$path/" else path).apply { time = CONSTANT_TIME_FOR_ZIP_ENTRIES })
                     open().use { copyTo(jarOut) }
                     jarOut.closeEntry()
                 }
