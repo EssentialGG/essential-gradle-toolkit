@@ -82,7 +82,7 @@ val revision = revisions.getOrNull(revisionId.toIntOrNull() ?: -1)
 fun prop(property: String, default: String?) =
     findProperty("essential.defaults.loom.$property")?.toString()
         ?: default
-        ?: throw GradleException("No default $property for ${platform.mcVersionStr}. Set `essential.defaults.loom.$property` in the project's `gradle.properties` or PR a new default.")
+        ?: throw GradleException("No default $property for ${platform.mcVersionStr} ${platform.loaderStr}. Set `essential.defaults.loom.$property` in the project's `gradle.properties` or PR a new default.")
 
 dependencies {
     minecraft(prop("minecraft", "com.mojang:minecraft:${platform.mcVersionStr}"))
