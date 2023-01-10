@@ -119,7 +119,7 @@ abstract class RelocationTransform : TransformAction<RelocationTransform.Paramet
                     reader.accept(ClassRemapper(KotlinMetadataRemappingClassVisitor(remapper, writer), remapper), 0)
                     writer.toByteArray()
                 } else if (entry.name.startsWith("META-INF/services/")) {
-                    String(originalBytes).replace('.', '/').lines().map(remapper::mapValue).joinToString("\n").replace('/','.').encodeToByteArray()
+                    String(originalBytes).replace('.', '/').lines().map(remapper::map).joinToString("\n").replace('/','.').encodeToByteArray()
                 } else {
                     originalBytes
                 }
