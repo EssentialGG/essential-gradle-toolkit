@@ -49,7 +49,7 @@ revisions.add(Revision(
         10800 to "snapshot:20141130-1.8",
         10710 to "stable:12-1.7.10",
     ),
-    fabricLoader = "0.13.3",
+    fabricLoader = "0.14.2",
     forge = mapOf(
         11903 to "1.19.3-44.1.0"
         11902 to "1.19.2-43.2.0",
