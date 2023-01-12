@@ -21,18 +21,18 @@ revisions.add(Revision(
     yarn = mapOf(
         // Versions available here: https://maven.fabricmc.net/net/fabricmc/yarn/
         11903 to "1.19.3+build.5:v2"
-        11902 to "1.19.2+build.9:v2",
-        11901 to "1.19.1+build.5:v2",
-        11900 to "1.19+build.1:v2",
-        11802 to "1.18.2+build.2:v2",
+        11902 to "1.19.2+build.28:v2",
+        11901 to "1.19.1+build.6:v2",
+        11900 to "1.19+build.4:v2",
+        11802 to "1.18.2+build.4:v2",
         11801 to "1.18.1+build.22:v2",
-        11701 to "1.17.1+build.39:v2",
+        11701 to "1.17.1+build.65:v2",
         11700 to "1.17+build.13:v2",
-        11604 to "1.16.4+build.6:v2",
-        11602 to "1.16.2+build.1:v2",
-        11601 to "1.16.1+build.17:v2",
-        11502 to "1.15.2+build.14",
-        11404 to "1.14.4+build.16",
+        11604 to "1.16.4+build.9:v2",
+        11602 to "1.16.2+build.47:v2",
+        11601 to "1.16.1+build.21:v2",
+        11502 to "1.15.2+build.17",
+        11404 to "1.14.4+build.18",
     ),
     mcp = mapOf(
         11602 to "snapshot:20201028-1.16.3",
