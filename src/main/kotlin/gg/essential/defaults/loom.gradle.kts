@@ -20,7 +20,7 @@ val revisions = mutableListOf<Revision>()
 revisions.add(Revision(
     yarn = mapOf(
         // Versions available here: https://maven.fabricmc.net/net/fabricmc/yarn/
-        11903 to "1.19.3+build.5:v2"
+        11903 to "1.19.3+build.5:v2",
         11902 to "1.19.2+build.9:v2",
         11901 to "1.19.1+build.5:v2",
         11900 to "1.19+build.1:v2",
@@ -51,7 +51,7 @@ revisions.add(Revision(
     ),
     fabricLoader = "0.13.3",
     forge = mapOf(
-        11903 to "1.19.3-44.1.0"
+        11903 to "1.19.3-44.1.0",
         11902 to "1.19.2-43.1.16",
         11900 to "1.19-41.0.63",
         11801 to "1.18.1-39.0.79",
