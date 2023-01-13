@@ -15,7 +15,7 @@ val essentialLoader: Configuration by configurations.creating
 when {
     platform.isLegacyForge -> {
         dependencies {
-            "runtimeOnly"(essentialLoader("gg.essential:loader-launchwrapper:1.1.3")!!)
+            "implementation"(essentialLoader("gg.essential:loader-launchwrapper:1.1.3")!!)
         }
         tasks.named<Jar>("jar") {
             dependsOn(essentialLoader)
