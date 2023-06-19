@@ -29,8 +29,14 @@ data class Revision(
 }
 val revisions = mutableListOf<Revision>()
 
+// Add new versions to the first revision, so they're available to all users.
+// To change existing entries, create a new revision extending from the last one, so existing users keep seeing the old
+// one until they opt-in to the new one.
 revisions.add(Revision(
     yarn = mapOf(
+        12001 to "1.20.1+build.2:v2",
+        12000 to "1.20+build.1:v2",
+        11904 to "1.19.4+build.2:v2",
         11903 to "1.19.3+build.5:v2",
         11902 to "1.19.2+build.9:v2",
         11901 to "1.19.1+build.5:v2",
@@ -39,6 +45,7 @@ revisions.add(Revision(
         11801 to "1.18.1+build.22:v2",
         11701 to "1.17.1+build.39:v2",
         11700 to "1.17+build.13:v2",
+        11605 to "1.16.5+build.10:v2",
         11604 to "1.16.4+build.6:v2",
         11602 to "1.16.2+build.1:v2",
         11601 to "1.16.1+build.17:v2",
@@ -46,6 +53,7 @@ revisions.add(Revision(
         11404 to "1.14.4+build.16",
     ),
     mcp = mapOf(
+        11605 to "snapshot:20210309-1.16.5",
         11602 to "snapshot:20201028-1.16.3",
         11502 to "snapshot:20200220-1.15.1@zip",
         11404 to "snapshot:20190719-1.14.3",
@@ -62,11 +70,16 @@ revisions.add(Revision(
     ),
     fabricLoader = "0.13.3",
     forge = mapOf(
+        12001 to "1.20.1-47.0.3",
+        12000 to "1.20-46.0.14",
+        11904 to "1.19.4-45.1.0",
         11903 to "1.19.3-44.1.0",
         11902 to "1.19.2-43.1.16",
         11900 to "1.19-41.0.63",
+        11802 to "1.18.2-40.0.46",
         11801 to "1.18.1-39.0.79",
         11701 to "1.17.1-37.0.112",
+        11605 to "1.16.5-36.2.39",
         11602 to "1.16.2-33.0.61",
         11502 to "1.15.2-31.1.18",
         11404 to "1.14.4-28.1.113",
