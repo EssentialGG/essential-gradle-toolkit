@@ -4,8 +4,8 @@ import gg.essential.gradle.util.compatibleKotlinMetadataVersion
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.KmDeclarationContainer
 import kotlinx.metadata.KmPackage
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
+import kotlinx.metadata.jvm.Metadata
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.objectweb.asm.*
@@ -103,7 +103,7 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
     val targetMetadata = targetClass.kotlinMetadata ?: return
     val sourceMetadata = sourceClass.kotlinMetadata ?: return
 
-    val sourceHeader = sourceMetadata.header
+    val sourceHeader = sourceMetadata.annotationData
     val extraInt = sourceHeader.extraInt
     val metadataVersion = compatibleKotlinMetadataVersion(sourceHeader.metadataVersion)
 
@@ -112,13 +112,13 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
             val targetKmClass = targetMetadata.toKmClass()
             val sourceKmClass = sourceMetadata.toKmClass()
             merge(targetKmClass, sourceKmClass)
-            KotlinClassMetadata.Class.Writer().apply(targetKmClass::accept).write(metadataVersion, extraInt)
+            KotlinClassMetadata.writeClass(targetKmClass, metadataVersion, extraInt)
         }
         sourceMetadata is KotlinClassMetadata.FileFacade && targetMetadata is KotlinClassMetadata.FileFacade -> {
             val targetKmPackage = targetMetadata.toKmPackage()
             val sourceKmPackage = sourceMetadata.toKmPackage()
             merge(targetKmPackage, sourceKmPackage)
-            KotlinClassMetadata.FileFacade.Writer().apply(targetKmPackage::accept).write(metadataVersion, extraInt)
+            KotlinClassMetadata.writeFileFacade(targetKmPackage, metadataVersion, extraInt)
         }
         else -> throw UnsupportedOperationException("Don't know how to merge ${sourceMetadata.javaClass} into ${targetMetadata.javaClass}")
     }
@@ -166,7 +166,7 @@ internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
         val values = values.windowed(2, 2).associate { (key, value) -> key to value }
         return KotlinClassMetadata.read(with(values) {
             @Suppress("UNCHECKED_CAST")
-            KotlinClassHeader(
+            Metadata(
                 kind = get("k") as Int?,
                 metadataVersion = (get("mv") as List<Int>?)?.toIntArray(),
                 data1 = (get("d1") as List<String>?)?.toTypedArray(),
@@ -178,7 +178,7 @@ internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
         })
     }
     set(value) {
-        with((value ?: return).header) {
+        with((value ?: return).annotationData) {
             values = mapOf(
                 "k" to kind,
                 "mv" to metadataVersion.toList(),

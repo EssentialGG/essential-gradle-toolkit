@@ -1,7 +1,7 @@
 /*
  * This file is part of fabric-loom, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2022 FabricMC
+ * Copyright (c) 2022-2023 FabricMC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,12 @@
 package gg.essential.gradle.util.relocate
 
 import gg.essential.gradle.util.compatibleKotlinMetadataVersion
-import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
+import kotlinx.metadata.jvm.Metadata
+// TODO ideally we shouldn't be depending on loom internals but the referenced class depends on a bunch of internals of
+//  kotlinx-metadata-jvm because the api is insufficient, meaning some internal dependencies will be going on anyway so
+//  we may as well just let loom deal with it instead of having to copy over loom's updates every time
+import net.fabricmc.loom.kotlin.remapping.KotlinClassRemapper
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.Remapper
@@ -50,36 +54,32 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
 
         when (val metadata = KotlinClassMetadata.read(header)) {
             is KotlinClassMetadata.Class -> {
-                val klass = metadata.toKmClass()
-                val writer = KotlinClassMetadata.Class.Writer()
-                klass.accept(RemappingKmVisitors(remapper).RemappingKmClassVisitor(writer))
-                val remapped = writer.write(metadataVersion, header.extraInt).header
+                var klass = metadata.toKmClass()
+                klass = KotlinClassRemapper(remapper).remap(klass)
+                val remapped = KotlinClassMetadata.writeClass(klass, metadataVersion, header.extraInt).annotationData
                 writeClassHeader(remapped)
             }
             is KotlinClassMetadata.SyntheticClass -> {
-                val klambda = metadata.toKmLambda()
+                var klambda = metadata.toKmLambda()
 
                 if (klambda != null) {
-                    val writer = KotlinClassMetadata.SyntheticClass.Writer()
-                    klambda.accept(RemappingKmVisitors(remapper).RemappingKmLambdaVisitor(writer))
-                    val remapped = writer.write(metadataVersion, header.extraInt).header
+                    klambda = KotlinClassRemapper(remapper).remap(klambda)
+                    val remapped = KotlinClassMetadata.writeLambda(klambda, metadataVersion, header.extraInt).annotationData
                     writeClassHeader(remapped)
                 } else {
                     accept(next)
                 }
             }
             is KotlinClassMetadata.FileFacade -> {
-                val kpackage = metadata.toKmPackage()
-                val writer = KotlinClassMetadata.FileFacade.Writer()
-                kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
-                val remapped = writer.write(metadataVersion, header.extraInt).header
+                var kpackage = metadata.toKmPackage()
+                kpackage = KotlinClassRemapper(remapper).remap(kpackage)
+                val remapped = KotlinClassMetadata.writeFileFacade(kpackage, metadataVersion, header.extraInt).annotationData
                 writeClassHeader(remapped)
             }
             is KotlinClassMetadata.MultiFileClassPart -> {
-                val kpackage = metadata.toKmPackage()
-                val writer = KotlinClassMetadata.MultiFileClassPart.Writer()
-                kpackage.accept(RemappingKmVisitors(remapper).RemappingKmPackageVisitor(writer))
-                val remapped = writer.write(metadata.facadeClassName, metadataVersion, metadata.header.extraInt).header
+                var kpackage = metadata.toKmPackage()
+                kpackage = KotlinClassRemapper(remapper).remap(kpackage)
+                val remapped = KotlinClassMetadata.writeMultiFileClassPart(kpackage, metadata.facadeClassName, metadataVersion, metadata.annotationData.extraInt).annotationData
                 writeClassHeader(remapped)
             }
             is KotlinClassMetadata.MultiFileClassFacade, is KotlinClassMetadata.Unknown, null -> {
@@ -90,7 +90,7 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun readHeader(): KotlinClassHeader? {
+    private fun readHeader(): Metadata? {
         var kind: Int? = null
         var metadataVersion: IntArray? = null
         var data1: Array<String>? = null
@@ -115,10 +115,10 @@ internal class KotlinClassMetadataRemappingAnnotationVisitor(private val remappe
             }
         }
 
-        return KotlinClassHeader(kind, metadataVersion, data1, data2, extraString, packageName, extraInt)
+        return Metadata(kind, metadataVersion, data1, data2, extraString, packageName, extraInt)
     }
 
-    private fun writeClassHeader(header: KotlinClassHeader) {
+    private fun writeClassHeader(header: Metadata) {
         val newNode = AnnotationNode(api, desc)
         newNode.values = this.values.toMutableList()
 

@@ -170,8 +170,8 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
             override fun visitEnd() {
                 var metadata = kotlinMetadata ?: return
 
-                val extraInt = metadata.header.extraInt
-                val metadataVersion = compatibleKotlinMetadataVersion(metadata.header.metadataVersion)
+                val extraInt = metadata.annotationData.extraInt
+                val metadataVersion = compatibleKotlinMetadataVersion(metadata.annotationData.metadataVersion)
 
                 when (metadata) {
                     is KotlinClassMetadata.Class -> {
@@ -179,7 +179,7 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
                         cls.supertypes.removeIf { excluded(it.classifier) }
                         cls.properties.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) }
                         cls.functions.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) || excluded(it.valueParameters) }
-                        metadata = KotlinClassMetadata.Class.Writer().apply(cls::accept).write(metadataVersion, extraInt)
+                        metadata = KotlinClassMetadata.writeClass(cls, metadataVersion, extraInt)
                     }
                     else -> {}
                 }
