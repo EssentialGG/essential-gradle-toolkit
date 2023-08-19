@@ -36,8 +36,8 @@ when {
         dependencies {
             val relocatedPackage = findProperty("essential.loader.package")?.toString() ?: throw GradleException("""
                 A package for the Essential loader to be relocated to has not been set.
-                You need to set `essential.loader.package` in the project's `gradle.properties` file to a specific package where Essential's loader will be relocated to.
-                The recommended package is an unused package within your mod's package.
+                You need to set `essential.loader.package` in the project's `gradle.properties` file to a package where Essential's loader will be relocated to.
+                For example: `essential.loader.package = org.example.coolmod.relocated.essential`
             """.trimIndent())
             val relocationAttribute =
                 registerRelocationAttribute("essential-loader-relocated") {
