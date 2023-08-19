@@ -20,7 +20,6 @@ when {
         tasks.named<Jar>("jar") {
             dependsOn(essentialLoader)
             manifest.attributes(mapOf(
-                "FMLCorePluginContainsMod" to "Yes, yes it does",
                 "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker"
             ))
             from({ zipTree(essentialLoader.singleFile) })
