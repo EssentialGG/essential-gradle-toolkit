@@ -2,7 +2,7 @@
 A Gradle plugin providing various utility methods and common code required to set up multi-version Minecraft mods via [architectury-loom] and [preprocessor].
 
 ### Dependency
-<img alt="version badge" src="https://badges.modcore.net/maven-metadata/v?metadataUrl=https://repo.essential.gg/repository/maven-public/gg/essential/essential-gradle-toolkit/maven-metadata.xml">
+<img alt="version badge" src="https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.essential.gg%2Frepository%2Fmaven-public%2Fgg%2Fessential%2Fessential-gradle-toolkit%2Fmaven-metadata.xml">
 
 To use essential-gradle-toolkit in your project, you need to add the following repositories to your `settings.gradle(.kts)` file:
 ```kotlin

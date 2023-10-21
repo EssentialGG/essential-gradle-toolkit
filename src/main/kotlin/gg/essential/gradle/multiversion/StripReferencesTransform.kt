@@ -31,15 +31,19 @@ import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
 /**
- * Relocates packages and single files in an artifact.
+ * Strips all references to classes in the given package(s) from the artifact to which it is applied.
  *
- * If a package is relocated, the folder containing it will be relocated as a whole.
- * File renames take priority over package relocations.
+ * This is useful if you wish to set up a platform-independent "common" project that depends on other mods with mostly
+ * platform-independent API (such as Vigilance, Elementa, and UniversalCraft).
+ * If you simply add a direct dependency on such a mod, the compiler may error if it sees a class that's not actually
+ * on the classpath (such as one of the Minecraft classes), even if it doesn't appear to be necessary for your code.
+ * This transform allows bypassing such errors by stripping any such references from the bytecode, leaving the compiler
+ * properly in the dark.
  *
- * The packages do not have to be part of the artifact, e.g. a completely valid use case would be relocating guava
- * packages in an artifact using guava (for actual use, you'd of course also have to relocate the guava artifact itself,
- * otherwise the classes referred to after the relocation will not exist). This can be used together with [prebundle] to
- * create fat jars which apply at dev time (to e.g. use two different versions of the same library).
+ * Do note that this is not a fool-proof way to prevent usage of platform-specific APIs from your "common" project. An
+ * API may be specific to a given platform without directly depending on any Minecraft class. If that is your goal, you
+ * will have to implement a more complex solution that merges all variants of your dependency into a single one, keeping
+ * only what is present in all of them.
  *
  * To simplify setup, use [registerStripReferencesAttribute].
  */
