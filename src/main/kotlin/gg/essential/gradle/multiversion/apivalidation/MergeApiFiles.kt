@@ -1,5 +1,6 @@
 package gg.essential.gradle.multiversion.apivalidation
 
+import gg.essential.gradle.util.multiversionChildProjects
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
@@ -26,7 +27,7 @@ abstract class MergeApiFiles : DefaultTask() {
             input.value.mergeInto(output, input.key)
         }
 
-        val outputStr = Writer(project.childProjects.keys).write(output)
+        val outputStr = Writer(project.multiversionChildProjects.keys).write(output)
         this.output.get().asFile.writeText(outputStr)
     }
 }

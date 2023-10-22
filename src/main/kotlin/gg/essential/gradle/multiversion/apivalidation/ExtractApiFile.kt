@@ -1,5 +1,6 @@
 package gg.essential.gradle.multiversion.apivalidation
 
+import gg.essential.gradle.util.multiversionChildProjects
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -20,7 +21,7 @@ abstract class ExtractApiFile : DefaultTask() {
 
     @TaskAction
     fun merge() {
-        val parser = Parser(project.parent!!.childProjects.keys)
+        val parser = Parser(project.parent!!.multiversionChildProjects.keys)
         val input = parser.parseFile(input.get().asFile.readText())
         val outputStr = Writer(emptySet()).write(input.filtered(selector.get()))
         this.output.get().asFile.writeText(outputStr)
