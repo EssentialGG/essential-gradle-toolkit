@@ -15,7 +15,7 @@ val essentialLoader: Configuration by configurations.creating
 when {
     platform.isLegacyForge -> {
         dependencies {
-            "implementation"(essentialLoader("gg.essential:loader-launchwrapper:1.1.3")!!)
+            "implementation"(essentialLoader("gg.essential:loader-launchwrapper:1.2.2")!!)
         }
         tasks.named<Jar>("jar") {
             dependsOn(essentialLoader)
@@ -28,7 +28,7 @@ when {
 
     platform.isFabric -> {
         dependencies {
-            "include"("modRuntimeOnly"("gg.essential:loader-fabric:1.0.0")!!)
+            "include"("modRuntimeOnly"("gg.essential:loader-fabric:1.2.2")!!)
         }
     }
 
@@ -49,9 +49,9 @@ when {
                 attribute(relocationAttribute, true)
             }
             if (platform.mcVersion < 11700) {
-                "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher8:1.0.0")!!)
+                "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher8:1.2.2")!!)
             } else {
-                "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher9:1.0.0")!!)
+                "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher9:1.2.2")!!)
             }
         }
         tasks.named<Jar>("jar") {
