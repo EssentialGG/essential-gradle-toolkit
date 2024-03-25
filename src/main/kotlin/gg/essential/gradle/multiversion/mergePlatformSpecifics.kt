@@ -100,23 +100,24 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
         targetClass.methods.add(method)
     }
 
-    val targetMetadata = targetClass.kotlinMetadata ?: return
-    val sourceMetadata = sourceClass.kotlinMetadata ?: return
+    val targetAnnotation = targetClass.kotlinMetadata ?: return
+    val sourceAnnotation = sourceClass.kotlinMetadata ?: return
+    val targetMetadata = KotlinClassMetadata.read(targetAnnotation)
+    val sourceMetadata = KotlinClassMetadata.read(sourceAnnotation)
 
-    val sourceHeader = sourceMetadata.annotationData
-    val extraInt = sourceHeader.extraInt
-    val metadataVersion = compatibleKotlinMetadataVersion(sourceHeader.metadataVersion)
+    val extraInt = sourceAnnotation.extraInt
+    val metadataVersion = compatibleKotlinMetadataVersion(sourceAnnotation.metadataVersion)
 
     val mergedMetadata = when {
         sourceMetadata is KotlinClassMetadata.Class && targetMetadata is KotlinClassMetadata.Class -> {
-            val targetKmClass = targetMetadata.toKmClass()
-            val sourceKmClass = sourceMetadata.toKmClass()
+            val targetKmClass = targetMetadata.kmClass
+            val sourceKmClass = sourceMetadata.kmClass
             merge(targetKmClass, sourceKmClass)
             KotlinClassMetadata.writeClass(targetKmClass, metadataVersion, extraInt)
         }
         sourceMetadata is KotlinClassMetadata.FileFacade && targetMetadata is KotlinClassMetadata.FileFacade -> {
-            val targetKmPackage = targetMetadata.toKmPackage()
-            val sourceKmPackage = sourceMetadata.toKmPackage()
+            val targetKmPackage = targetMetadata.kmPackage
+            val sourceKmPackage = sourceMetadata.kmPackage
             merge(targetKmPackage, sourceKmPackage)
             KotlinClassMetadata.writeFileFacade(targetKmPackage, metadataVersion, extraInt)
         }
@@ -148,7 +149,7 @@ private fun mergeDeclarationContainer(targetContainer: KmDeclarationContainer, s
 
 private const val KotlinMetadata_Desc = "Lkotlin/Metadata;"
 
-private var ClassNode.kotlinMetadata: KotlinClassMetadata?
+private var ClassNode.kotlinMetadata: Metadata?
     get() {
         val annotation = visibleAnnotations.find { it.desc == KotlinMetadata_Desc } ?: return null
         return annotation.kotlinMetadata
@@ -161,10 +162,10 @@ private var ClassNode.kotlinMetadata: KotlinClassMetadata?
         visibleAnnotations.add(annotation)
     }
 
-internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
+internal var AnnotationNode.kotlinMetadata: Metadata?
     get() {
         val values = values.windowed(2, 2).associate { (key, value) -> key to value }
-        return KotlinClassMetadata.read(with(values) {
+        return with(values) {
             @Suppress("UNCHECKED_CAST")
             Metadata(
                 kind = get("k") as Int?,
@@ -175,10 +176,10 @@ internal var AnnotationNode.kotlinMetadata: KotlinClassMetadata?
                 packageName = get("pn") as String?,
                 extraInt = get("xi") as Int?
             )
-        })
+        }
     }
     set(value) {
-        with((value ?: return).annotationData) {
+        with(value ?: return) {
             values = mapOf(
                 "k" to kind,
                 "mv" to metadataVersion.toList(),

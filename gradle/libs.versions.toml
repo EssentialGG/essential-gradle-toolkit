@@ -1,9 +1,9 @@
 [versions]
-archloom = "1.3.12"
+archloom = "1.4.13"
 archloomPack200 = "0.1.3"
 kotlin = "1.8.21"
 kotlinx-binaryCompatibilityValidator = "0.13.1"
-kotlinx-metadata-jvm = "0.6.2"
+kotlinx-metadata-jvm = "0.7.0"
 proguard = "7.2.0"
 preprocessor = "fad42fb"
 asm = "9.3"

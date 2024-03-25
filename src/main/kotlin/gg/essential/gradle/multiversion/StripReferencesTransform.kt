@@ -172,23 +172,23 @@ abstract class StripReferencesTransform : TransformAction<StripReferencesTransfo
 
         inner class KotlinMetadataTransformer(val inner: AnnotationVisitor, desc: String) : AnnotationNode(Opcodes.ASM9, desc) {
             override fun visitEnd() {
-                var metadata = kotlinMetadata ?: return
+                var annotation = kotlinMetadata ?: return
 
-                val extraInt = metadata.annotationData.extraInt
-                val metadataVersion = compatibleKotlinMetadataVersion(metadata.annotationData.metadataVersion)
+                val extraInt = annotation.extraInt
+                val metadataVersion = compatibleKotlinMetadataVersion(annotation.metadataVersion)
 
-                when (metadata) {
+                when (val metadata = KotlinClassMetadata.read(annotation)) {
                     is KotlinClassMetadata.Class -> {
-                        val cls = metadata.toKmClass()
+                        val cls = metadata.kmClass
                         cls.supertypes.removeIf { excluded(it.classifier) }
                         cls.properties.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) }
                         cls.functions.removeIf { excluded(it.returnType) || excluded(it.receiverParameterType) || excluded(it.valueParameters) }
-                        metadata = KotlinClassMetadata.writeClass(cls, metadataVersion, extraInt)
+                        annotation = KotlinClassMetadata.writeClass(cls, metadataVersion, extraInt)
                     }
                     else -> {}
                 }
 
-                kotlinMetadata = metadata
+                kotlinMetadata = annotation
 
                 accept(inner)
             }
