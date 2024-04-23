@@ -20,6 +20,7 @@ data class Platform(
     val isLegacyForge = loader == Loader.Forge && mcVersion < 11400
 
     val javaVersion = when {
+        mcVersion >= 12005 -> JavaVersion.VERSION_21
         mcVersion >= 11800 -> JavaVersion.VERSION_17
         mcVersion >= 11700 -> JavaVersion.VERSION_16
         else -> JavaVersion.VERSION_1_8
