@@ -102,8 +102,8 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
 
     val targetAnnotation = targetClass.kotlinMetadata ?: return
     val sourceAnnotation = sourceClass.kotlinMetadata ?: return
-    val targetMetadata = KotlinClassMetadata.read(targetAnnotation)
-    val sourceMetadata = KotlinClassMetadata.read(sourceAnnotation)
+    val targetMetadata = KotlinClassMetadata.readStrict(targetAnnotation)
+    val sourceMetadata = KotlinClassMetadata.readStrict(sourceAnnotation)
 
     val extraInt = sourceAnnotation.extraInt
     val metadataVersion = compatibleKotlinMetadataVersion(sourceAnnotation.metadataVersion)
@@ -113,13 +113,13 @@ private fun merge(targetClass: ClassNode, sourceClass: ClassNode) {
             val targetKmClass = targetMetadata.kmClass
             val sourceKmClass = sourceMetadata.kmClass
             merge(targetKmClass, sourceKmClass)
-            KotlinClassMetadata.writeClass(targetKmClass, metadataVersion, extraInt)
+            KotlinClassMetadata.Class(targetKmClass, metadataVersion, extraInt).write()
         }
         sourceMetadata is KotlinClassMetadata.FileFacade && targetMetadata is KotlinClassMetadata.FileFacade -> {
             val targetKmPackage = targetMetadata.kmPackage
             val sourceKmPackage = sourceMetadata.kmPackage
             merge(targetKmPackage, sourceKmPackage)
-            KotlinClassMetadata.writeFileFacade(targetKmPackage, metadataVersion, extraInt)
+            KotlinClassMetadata.FileFacade(targetKmPackage, metadataVersion, extraInt).write()
         }
         else -> throw UnsupportedOperationException("Don't know how to merge ${sourceMetadata.javaClass} into ${targetMetadata.javaClass}")
     }

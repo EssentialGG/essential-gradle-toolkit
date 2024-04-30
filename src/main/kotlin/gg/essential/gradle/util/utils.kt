@@ -1,5 +1,6 @@
 package gg.essential.gradle.util
 
+import kotlinx.metadata.jvm.JvmMetadataVersion
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import java.util.Calendar
@@ -18,12 +19,12 @@ internal fun checkJavaVersion(minVersion: JavaVersion) {
     }
 }
 
-internal fun compatibleKotlinMetadataVersion(version: IntArray): IntArray {
+internal fun compatibleKotlinMetadataVersion(version: IntArray): JvmMetadataVersion {
     // Upgrade versions older than 1.4 to 1.4 in accordance with https://youtrack.jetbrains.com/issue/KT-41011
     if (version.size < 2 || version[0] < 1 || version[0] <= 1 && version[1] < 4) {
-        return intArrayOf(1, 4)
+        return JvmMetadataVersion(1, 4)
     }
-    return version
+    return JvmMetadataVersion(version[0], version[1], version[2])
 }
 
 // A safe, constant value for creating consistent zip entries
