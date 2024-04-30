@@ -18,7 +18,7 @@ data class Platform(
     val isForge = loader == Loader.Forge
     val isNeoForge = loader == Loader.NeoForge
     val isForgeLike = isForge || isNeoForge
-    val isModLauncher = loader == Loader.Forge && mcVersion >= 11400
+    val isModLauncher = isForgeLike && mcVersion >= 11400
     val isLegacyForge = loader == Loader.Forge && mcVersion < 11400
 
     val javaVersion = when {
