@@ -14,17 +14,20 @@ data class Revision(
     val mcp: Map<Int, String>,
     val fabricLoader: String,
     val forge: Map<Int, String>,
+    val neoForge: Map<Int, String>,
 ) {
     fun update(
         yarn: Map<Int, String> = emptyMap(),
         mcp: Map<Int, String> = emptyMap(),
         fabricLoader: String = this.fabricLoader,
         forge: Map<Int, String> = emptyMap(),
+        neoForge: Map<Int, String> = emptyMap(),
     ) = Revision(
         this.yarn + yarn,
         this.mcp + mcp,
         fabricLoader,
         this.forge + forge,
+        this.neoForge + neoForge,
     )
 }
 val revisions = mutableListOf<Revision>()
@@ -102,6 +105,13 @@ revisions.add(Revision(
         10800 to "1.8-11.14.4.1563",
         10710 to "1.7.10-10.13.4.1558-1.7.10",
     ),
+    neoForge = mapOf(
+        12006 to "20.6.7-beta",
+        12005 to "20.5.21-beta",
+        12004 to "20.4.234",
+        12003 to "20.3.8-beta",
+        12002 to "20.2.88",
+    )
 ))
 
 revisions.add(revisions.last().update(
@@ -182,10 +192,12 @@ dependencies {
 
     if (platform.isFabric) {
         modImplementation(prop("fabric-loader", "net.fabricmc:fabric-loader:${revision.fabricLoader}"))
-    } else {
+    } else if (platform.isForge) {
         "forge"(prop("forge", revision.forge[platform.mcVersion]?.let { "net.minecraftforge:forge:$it" }))
 
         loom.forge.pack200Provider.set(Pack200Adapter())
+    } else if (platform.isNeoForge) {
+        "neoForge"(prop("neoForge", revision.neoForge[platform.mcVersion]?.let { "net.neoforged:neoforge:$it" }))
     }
 }
 

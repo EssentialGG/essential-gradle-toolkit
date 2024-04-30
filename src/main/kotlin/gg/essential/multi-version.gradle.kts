@@ -28,7 +28,15 @@ afterEvaluate { configureResources() } // delayed because it needs project.versi
 parent?.let(::inheritConfigurationFrom)
 
 fun setupLoomPlugin() {
-    extra.set("loom.platform", if (platform.isForge) "forge" else "fabric")
+    extra.set(
+        "loom.platform",
+        when {
+            platform.isFabric -> "fabric"
+            platform.isForge -> "forge"
+            platform.isNeoForge -> "neoforge"
+            else -> throw IllegalStateException("Could not determine loader for ${project.name}.")
+        }
+    )
 
     apply<LoomGradlePluginBootstrap>()
 
@@ -46,6 +54,8 @@ fun setupPreprocessPlugin() {
         vars.put("MC", mcVersion)
         vars.put("FABRIC", if (platform.isFabric) 1 else 0)
         vars.put("FORGE", if (platform.isForge) 1 else 0)
+        vars.put("NEOFORGE", if (platform.isNeoForge) 1 else 0)
+        vars.put("FORGELIKE", if (platform.isForgeLike) 1 else 0)
     }
 }
 
