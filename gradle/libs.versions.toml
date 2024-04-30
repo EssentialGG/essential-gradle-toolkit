@@ -4,7 +4,6 @@ archloomPack200 = "0.1.3"
 kotlin = "1.9.23"
 kotlinx-binaryCompatibilityValidator = "0.13.1"
 kotlinx-metadata-jvm = "0.9.0"
-proguard = "7.2.0"
 preprocessor = "b09f534"
 asm = "9.6"
 guava = "33.0.0-jre"
@@ -13,7 +12,6 @@ guava = "33.0.0-jre"
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinx-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "kotlinx-binaryCompatibilityValidator" }
 kotlinx-metadata-jvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version.ref = "kotlinx-metadata-jvm" }
-proguard = { module = "com.guardsquare:proguard-gradle", version.ref = "proguard" }
 preprocessor = { module = "com.github.replaymod:preprocessor", version.ref = "preprocessor" }
 asm = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }

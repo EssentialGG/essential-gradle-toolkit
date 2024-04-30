@@ -27,10 +27,6 @@ dependencies {
 
     compileOnly(libs.kotlin.gradlePlugin)
     implementation(libs.kotlinx.binaryCompatibilityValidator)
-    implementation(libs.proguard) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    implementation("gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0")
     api(libs.preprocessor)
     implementation(libs.asm)
     implementation(libs.guava)
