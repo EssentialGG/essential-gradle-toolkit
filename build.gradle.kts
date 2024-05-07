@@ -28,6 +28,7 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     implementation(libs.kotlinx.binaryCompatibilityValidator)
     api(libs.preprocessor)
+    api(libs.remap)
     implementation(libs.asm)
     implementation(libs.guava)
     implementation(libs.kotlinx.metadata.jvm)

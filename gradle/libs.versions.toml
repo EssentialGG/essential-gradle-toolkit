@@ -5,6 +5,7 @@ kotlin = "1.9.23"
 kotlinx-binaryCompatibilityValidator = "0.13.1"
 kotlinx-metadata-jvm = "0.9.0"
 preprocessor = "b09f534"
+remap = "5134612"
 asm = "9.6"
 guava = "33.0.0-jre"
 
@@ -13,6 +14,7 @@ kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 kotlinx-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "kotlinx-binaryCompatibilityValidator" }
 kotlinx-metadata-jvm = { module = "org.jetbrains.kotlinx:kotlinx-metadata-jvm", version.ref = "kotlinx-metadata-jvm" }
 preprocessor = { module = "com.github.replaymod:preprocessor", version.ref = "preprocessor" }
+remap = { module = "com.github.replaymod:remap", version.ref = "remap" }
 asm = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 archloom = { module = "gg.essential.loom:gg.essential.loom.gradle.plugin", version.ref = "archloom" }
