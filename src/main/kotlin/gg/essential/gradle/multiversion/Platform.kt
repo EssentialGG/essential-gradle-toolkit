@@ -16,7 +16,9 @@ data class Platform(
 
     val isFabric = loader == Loader.Fabric
     val isForge = loader == Loader.Forge
-    val isModLauncher = loader == Loader.Forge && mcVersion >= 11400
+    val isNeoForge = loader == Loader.NeoForge
+    val isForgeLike = isForge || isNeoForge
+    val isModLauncher = isForgeLike && mcVersion >= 11400
     val isLegacyForge = loader == Loader.Forge && mcVersion < 11400
 
     val javaVersion = when {
@@ -33,6 +35,7 @@ data class Platform(
     enum class Loader {
         Fabric,
         Forge,
+        NeoForge,
     }
 
     companion object {
@@ -63,17 +66,19 @@ data class Platform(
         private fun guessLoader(project: Project): Loader {
             // Try configured loom.platform value first
             val loomPlatform = project.findProperty("loom.platform")?.toString()
-            when (loomPlatform?.toLowerCase()) {
+            when (loomPlatform?.lowercase()) {
                 "fabric" -> return Loader.Fabric
                 "forge" -> return Loader.Forge
+                "neoforge" -> return Loader.NeoForge
                 null -> {}
                 else -> throw GradleException("Unknown loom.platform value: \"$loomPlatform\"")
             }
 
             // If that's not set, try to infer it from the project name
             when {
-                "fabric" in project.name -> return Loader.Fabric
-                "forge" in project.name -> return Loader.Forge
+                "fabric" in project.name.lowercase() -> return Loader.Fabric
+                "neoforge" in project.name.lowercase() -> return Loader.NeoForge
+                "forge" in project.name.lowercase() -> return Loader.Forge
                 else -> {}
             }
 
