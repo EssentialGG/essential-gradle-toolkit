@@ -3,6 +3,7 @@ package gg.essential.gradle.util
 import kotlinx.metadata.jvm.JvmMetadataVersion
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
+import org.gradle.api.Project
 import java.util.Calendar
 import java.util.GregorianCalendar
 
@@ -30,3 +31,9 @@ internal fun compatibleKotlinMetadataVersion(version: IntArray): JvmMetadataVers
 // A safe, constant value for creating consistent zip entries
 // From: https://github.com/gradle/gradle/blob/d6c7fd470449a59fc57a26b4ebc0ad83c64af50a/subprojects/core/src/main/java/org/gradle/api/internal/file/archive/ZipCopyAction.java#L42-L57
 val CONSTANT_TIME_FOR_ZIP_ENTRIES = GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis
+
+val Project.isMultiversionChildProject
+    get() = plugins.hasPlugin("gg.essential.multi-version")
+
+val Project.multiversionChildProjects
+    get() = childProjects.filter { it.value.isMultiversionChildProject }
