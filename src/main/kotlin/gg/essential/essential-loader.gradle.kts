@@ -74,7 +74,7 @@ when {
                           "minVersion": "0.8",
                           "compatibilityLevel": "JAVA_16",
                           "plugin": "$relocatedPackage.stage0.EssentialStage0MixinPlugin",
-                          "package" : "$relocatedPackage.stage0"
+                          "package" : "$relocatedPackage.stage0.dummy"
                         }
                     """.trimIndent())
                 }
