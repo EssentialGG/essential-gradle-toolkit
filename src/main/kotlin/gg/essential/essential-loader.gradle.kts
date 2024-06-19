@@ -82,7 +82,7 @@ when {
             named<ProcessResources>("processResources") {
                 if (!isML8) {
                     dependsOn(named("generateEssentialLoaderMixinConfig"))
-                    from(file("${layout.buildDirectory}/generated-resources"))
+                    from(file("${layout.buildDirectory}/generated-resources/mixin.stage0.essential-loader.json"))
                 }
             }
         }
