@@ -34,6 +34,7 @@ when {
 
     //FIXME: Fix loader not working on ml
     platform.isModLauncher -> {
+        val isML8 = platform.mcVersion < 11700
         val relocatedPackage = findProperty("essential.loader.package")?.toString() ?: throw GradleException("""
                 A package for the Essential loader to be relocated to has not been set.
                 You need to set `essential.loader.package` in the project's `gradle.properties` file to a package where Essential's loader will be relocated to.
@@ -49,7 +50,7 @@ when {
             essentialLoader.attributes {
                 attribute(relocationAttribute, true)
             }
-            if (platform.mcVersion < 11700) {
+            if (isML8) {
                 "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher8:1.2.2")!!)
             } else {
                 "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher9:1.2.2")!!)
@@ -58,7 +59,11 @@ when {
         tasks {
             named<Jar>("jar") {
                 dependsOn(essentialLoader)
-                from({ zipTree(essentialLoader.singleFile) })
+                from({ zipTree(essentialLoader.singleFile) }) {
+                    if (!isML8) {
+                        exclude("**/META-INF/services/**")
+                    }
+                }
             }
             register("generateEssentialLoaderMixinConfig") {
                 val outputFile = file("${layout.buildDirectory}/generated-resources/mixin.stage0.essential-loader.json")
@@ -75,8 +80,10 @@ when {
                 }
             }
             named<ProcessResources>("processResources") {
-                dependsOn(named("generateEssentialLoaderMixinConfig"))
-                from(file("${layout.buildDirectory}/generated-resources"))
+                if (!isML8) {
+                    dependsOn(named("generateEssentialLoaderMixinConfig"))
+                    from(file("${layout.buildDirectory}/generated-resources"))
+                }
             }
         }
     }
