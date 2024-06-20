@@ -2,6 +2,7 @@ package gg.essential
 
 import gg.essential.gradle.multiversion.Platform
 import gg.essential.gradle.util.RelocationTransform.Companion.registerRelocationAttribute
+import net.fabricmc.loom.LoomGradleExtension
 
 
 plugins {
@@ -56,6 +57,21 @@ when {
                 "forgeRuntimeLibrary"(essentialLoader("gg.essential:loader-modlauncher9:1.2.2")!!)
             }
         }
+
+        if (!isML8) {
+            afterEvaluate {
+                tasks.named<Jar>("jar") {
+                    val mixinConfigs = manifest.attributes.getOrDefault("MixinConfigs", "") as String
+                    manifest.attributes["MixinConfigs"] =
+                        if (mixinConfigs.isBlank()) {
+                            "mixin.stage0.essential-loader.json"
+                        } else {
+                            "$mixinConfigs,mixin.stage0.essential-loader.json"
+                        }
+                }
+            }
+        }
+
         tasks {
             named<Jar>("jar") {
                 dependsOn(essentialLoader)
