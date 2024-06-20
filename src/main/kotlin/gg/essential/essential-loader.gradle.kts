@@ -2,7 +2,6 @@ package gg.essential
 
 import gg.essential.gradle.multiversion.Platform
 import gg.essential.gradle.util.RelocationTransform.Companion.registerRelocationAttribute
-import net.fabricmc.loom.LoomGradleExtension
 
 
 plugins {
