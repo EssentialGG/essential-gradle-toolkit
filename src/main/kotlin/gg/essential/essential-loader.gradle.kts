@@ -94,10 +94,26 @@ when {
                     """.trimIndent())
                 }
             }
+            register("generateModNameMarker") {
+                val modName = findProperty("essential.loader.modName")?.toString() ?: throw GradleException("""
+                        A mod name has not been set.
+                        You need to set `essential.loader.modName` in the project's `gradle.properties` file to the name of your mod.
+                        For example: `essential.loader.modName=Cool Mod`
+                    """.trimIndent())
+                val outputFile = file("${layout.buildDirectory}/generated-resources/essential-loader-mod-name.txt")
+                outputs.file(outputFile)
+                doLast {
+                    outputFile.writeText(modName)
+                }
+            }
             named<ProcessResources>("processResources") {
                 if (!isML8) {
                     dependsOn(named("generateEssentialLoaderMixinConfig"))
                     from(file("${layout.buildDirectory}/generated-resources/mixin.stage0.essential-loader.json"))
+                    dependsOn(named("generateModNameMarker"))
+                    from(file("${layout.buildDirectory}/generated-resources/essential-loader-mod-name.txt")) {
+                        into("META-INF")
+                    }
                 }
             }
         }
