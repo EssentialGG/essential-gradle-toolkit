@@ -88,13 +88,14 @@ fun configureResources() {
         // TODO is this required? are the FileCopyDetails not part of the input already?
         inputs.property("mod_version_expansions", expansions)
 
-        filesMatching(listOf("mcmod.info", "META-INF/mods.toml", "fabric.mod.json")) {
+        filesMatching(listOf("mcmod.info", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "fabric.mod.json")) {
             expand(expansions)
         }
 
         // And exclude mod metadata files for other platforms
         if (!platform.isFabric) exclude("fabric.mod.json")
         if (!platform.isModLauncher) exclude("META-INF/mods.toml")
+        if (!platform.isNeoForge) exclude("META-INF/neoforge.mods.toml")
         if (!platform.isLegacyForge) exclude("mcmod.info")
     }
 }
