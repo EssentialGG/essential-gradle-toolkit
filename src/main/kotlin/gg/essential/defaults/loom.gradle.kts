@@ -65,7 +65,7 @@ revisions.add(Revision(
         11605 to "snapshot:20210309-1.16.5",
         11602 to "snapshot:20201028-1.16.3",
         11502 to "snapshot:20200220-1.15.1@zip",
-        11404 to "snapshot:20190719-1.14.3",
+        11404 to "snapshot:20190719-1.14.3@zip",
         11202 to "snapshot:20170615-1.12",
         11201 to "snapshot:20170615-1.12",
         11200 to "snapshot:20170615-1.12",
