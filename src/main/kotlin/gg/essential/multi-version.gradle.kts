@@ -9,7 +9,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaToolchainSpec
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -59,7 +58,7 @@ fun configureJavaVersion() {
     pluginManager.withPlugin("kotlin") {
         configure<KotlinJvmProjectExtension> {
             jvmToolchain {
-                (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(platform.javaVersion.majorVersion))
+                languageVersion.set(JavaLanguageVersion.of(platform.javaVersion.majorVersion))
             }
         }
 
@@ -121,7 +120,7 @@ fun inheritConfigurationFrom(parent: Project) {
                     if (moduleName == null && "-module-name" !in freeCompilerArgs) {
                         moduleName = project.findProperty("baseArtifactId")?.toString()
                                 ?: parentBase?.archivesName?.orNull
-                                ?: parent.name.toLowerCase()
+                                ?: parent.name.lowercase()
                     }
                 }
             }

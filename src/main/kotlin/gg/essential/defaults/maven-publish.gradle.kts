@@ -14,7 +14,7 @@ publishing {
 
             pluginManager.withPlugin("gg.essential.multi-version") {
                 val platform: Platform by extensions
-                val baseArtifactId = (if (parent == rootProject) rootProject.name.toLowerCase() else null)
+                val baseArtifactId = (if (parent == rootProject) rootProject.name.lowercase() else null)
                     ?: project.findProperty("baseArtifactId")?.toString()
                     ?: throw GradleException("No default base maven artifact id found. Set `baseArtifactId` in the `gradle.properties` file of the multi-version-root project.")
                 artifactId = "$baseArtifactId-$platform"
