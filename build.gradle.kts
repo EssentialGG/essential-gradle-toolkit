@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "gg.essential"
-version = "0.6.1"
+version = "0.6.2"
 
 java.withSourcesJar()
 
