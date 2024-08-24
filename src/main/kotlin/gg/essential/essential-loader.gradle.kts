@@ -40,6 +40,7 @@ when {
                 You need to set `essential.loader.package` in the project's `gradle.properties` file to a package where Essential's loader will be relocated to.
                 For example: `essential.loader.package = org.example.coolmod.relocated.essential`
             """.trimIndent())
+        val generatedResourcesDirectory = layout.buildDirectory.dir(findProperty("essential.loader.generatedResourcesDir")?.toString() ?: "essential-generated-resources")
         dependencies {
             val relocationAttribute =
                 registerRelocationAttribute("essential-loader-relocated") {
@@ -81,7 +82,7 @@ when {
                 }
             }
             register("generateEssentialLoaderMixinConfig") {
-                val outputFile = file("${layout.buildDirectory}/generated-resources/mixin.stage0.essential-loader.json")
+                val outputFile = file(generatedResourcesDirectory.get().file("mixin.stage0.essential-loader.json"))
                 outputs.file(outputFile)
                 doLast {
                     outputFile.writeText("""
@@ -100,7 +101,7 @@ when {
                         You need to set `essential.loader.modName` in the project's `gradle.properties` file to the name of your mod.
                         For example: `essential.loader.modName=Cool Mod`
                     """.trimIndent())
-                val outputFile = file("${layout.buildDirectory}/generated-resources/essential-loader-mod-name.txt")
+                val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
                 outputs.file(outputFile)
                 doLast {
                     outputFile.writeText(modName)
@@ -109,9 +110,9 @@ when {
             named<ProcessResources>("processResources") {
                 if (!isML8) {
                     dependsOn(named("generateEssentialLoaderMixinConfig"))
-                    from(file("${layout.buildDirectory}/generated-resources/mixin.stage0.essential-loader.json"))
+                    from(file(generatedResourcesDirectory.get().file("mixin.stage0.essential-loader.json")))
                     dependsOn(named("generateModNameMarker"))
-                    from(file("${layout.buildDirectory}/generated-resources/essential-loader-mod-name.txt")) {
+                    from(file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))) {
                         into("META-INF")
                     }
                 }
