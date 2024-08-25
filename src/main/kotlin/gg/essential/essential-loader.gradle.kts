@@ -78,6 +78,11 @@ when {
             val mixinConfigName = "mixin.essential-loader-stage0.$relocatedPackage.$modName.json"
             tasks {
                 val generateEssentialLoaderMixinConfig by registering {
+                    inputs.properties(
+                        "generatedResourcesDirectory" to generatedResourcesDirectory,
+                        "mixinConfigName" to mixinConfigName,
+                        "relocatedPackage" to relocatedPackage
+                    )
                     val outputFile = file(generatedResourcesDirectory.get().file(mixinConfigName))
                     outputs.file(outputFile)
                     doLast {
@@ -92,6 +97,10 @@ when {
                     }
                 }
                 val generateEssentialLoaderModNameMarker by registering {
+                    inputs.properties(
+                        "generatedResourcesDirectory" to generatedResourcesDirectory,
+                        "modName" to modName
+                    )
                     val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
                     outputs.file(outputFile)
                     doLast {
