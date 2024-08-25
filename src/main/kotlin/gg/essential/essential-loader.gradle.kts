@@ -40,7 +40,6 @@ when {
                 You need to set `essential.loader.package` in the project's `gradle.properties` file to a package where Essential's loader will be relocated to.
                 For example: `essential.loader.package = org.example.coolmod.relocated.essential`
             """.trimIndent())
-        val generatedResourcesDirectory = layout.buildDirectory.dir(findProperty("essential.loader.generatedResourcesDir")?.toString() ?: "essential-generated-resources")
         dependencies {
             val relocationAttribute =
                 registerRelocationAttribute("essential-loader-relocated") {
@@ -58,20 +57,6 @@ when {
             }
         }
 
-        if (!isML8) {
-            afterEvaluate {
-                tasks.named<Jar>("jar") {
-                    val mixinConfigs = manifest.attributes.getOrDefault("MixinConfigs", "") as String
-                    manifest.attributes["MixinConfigs"] =
-                        if (mixinConfigs.isBlank()) {
-                            "mixin.stage0.essential-loader.json"
-                        } else {
-                            "$mixinConfigs,mixin.stage0.essential-loader.json"
-                        }
-                }
-            }
-        }
-
         tasks {
             named<Jar>("jar") {
                 dependsOn(essentialLoader)
@@ -81,11 +66,22 @@ when {
                     }
                 }
             }
-            register("generateEssentialLoaderMixinConfig") {
-                val outputFile = file(generatedResourcesDirectory.get().file("mixin.stage0.essential-loader.json"))
-                outputs.file(outputFile)
-                doLast {
-                    outputFile.writeText("""
+        }
+
+        if (!isML8) {
+            val generatedResourcesDirectory = layout.buildDirectory.dir(findProperty("essential.loader.generatedResourcesDir")?.toString() ?: "essential-generated-resources")
+            val modName = findProperty("essential.loader.modName")?.toString() ?: throw GradleException("""
+                        A mod name has not been set.
+                        You need to set `essential.loader.modName` in the project's `gradle.properties` file to the name of your mod.
+                        For example: `essential.loader.modName=Cool Mod`
+                    """.trimIndent())
+            val mixinConfigName = "mixin.essential-loader-stage0.$relocatedPackage.$modName.json"
+            tasks {
+                register("generateEssentialLoaderMixinConfig") {
+                    val outputFile = file(generatedResourcesDirectory.get().file(mixinConfigName))
+                    outputs.file(outputFile)
+                    doLast {
+                        outputFile.writeText("""
                         {
                           "minVersion": "0.8",
                           "compatibilityLevel": "JAVA_16",
@@ -93,28 +89,32 @@ when {
                           "package" : "$relocatedPackage.stage0.dummy"
                         }
                     """.trimIndent())
+                    }
                 }
-            }
-            register("generateModNameMarker") {
-                val modName = findProperty("essential.loader.modName")?.toString() ?: throw GradleException("""
-                        A mod name has not been set.
-                        You need to set `essential.loader.modName` in the project's `gradle.properties` file to the name of your mod.
-                        For example: `essential.loader.modName=Cool Mod`
-                    """.trimIndent())
-                val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
-                outputs.file(outputFile)
-                doLast {
-                    outputFile.writeText(modName)
+                register("generateModNameMarker") {
+                    val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
+                    outputs.file(outputFile)
+                    doLast {
+                        outputFile.writeText(modName)
+                    }
                 }
-            }
-            named<ProcessResources>("processResources") {
-                if (!isML8) {
+                named<ProcessResources>("processResources") {
                     dependsOn(named("generateEssentialLoaderMixinConfig"))
-                    from(file(generatedResourcesDirectory.get().file("mixin.stage0.essential-loader.json")))
+                    from(file(generatedResourcesDirectory.get().file(mixinConfigName)))
                     dependsOn(named("generateModNameMarker"))
                     from(file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))) {
                         into("META-INF")
                     }
+                }
+            }
+
+            afterEvaluate {
+                tasks.named<Jar>("jar") {
+                    val mixinConfigs = manifest.attributes.getOrDefault("MixinConfigs", "") as String
+                    manifest.attributes["MixinConfigs"] = listOfNotNull(
+                        mixinConfigs.takeIf(String::isNotBlank),
+                        mixinConfigName
+                    ).joinToString(",")
                 }
             }
         }
