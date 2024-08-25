@@ -77,7 +77,7 @@ when {
                     """.trimIndent())
             val mixinConfigName = "mixin.essential-loader-stage0.$relocatedPackage.$modName.json"
             tasks {
-                register("generateEssentialLoaderMixinConfig") {
+                val generateEssentialLoaderMixinConfig by registering {
                     val outputFile = file(generatedResourcesDirectory.get().file(mixinConfigName))
                     outputs.file(outputFile)
                     doLast {
@@ -91,7 +91,7 @@ when {
                     """.trimIndent())
                     }
                 }
-                register("generateModNameMarker") {
+                val generateModNameMarker by registering {
                     val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
                     outputs.file(outputFile)
                     doLast {
@@ -99,10 +99,8 @@ when {
                     }
                 }
                 named<ProcessResources>("processResources") {
-                    dependsOn(named("generateEssentialLoaderMixinConfig"))
-                    from(file(generatedResourcesDirectory.get().file(mixinConfigName)))
-                    dependsOn(named("generateModNameMarker"))
-                    from(file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))) {
+                    from(file(generateEssentialLoaderMixinConfig.map(Task::getOutputs)))
+                    from(file(generateModNameMarker.map(Task::getOutputs))) {
                         into("META-INF")
                     }
                 }
