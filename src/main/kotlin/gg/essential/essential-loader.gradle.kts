@@ -91,7 +91,7 @@ when {
                     """.trimIndent())
                     }
                 }
-                val generateModNameMarker by registering {
+                val generateEssentialLoaderModNameMarker by registering {
                     val outputFile = file(generatedResourcesDirectory.get().file("essential-loader-mod-name.txt"))
                     outputs.file(outputFile)
                     doLast {
@@ -100,7 +100,7 @@ when {
                 }
                 named<ProcessResources>("processResources") {
                     from(file(generateEssentialLoaderMixinConfig.map(Task::getOutputs)))
-                    from(file(generateModNameMarker.map(Task::getOutputs))) {
+                    from(file(generateEssentialLoaderModNameMarker.map(Task::getOutputs))) {
                         into("META-INF")
                     }
                 }
