@@ -75,7 +75,7 @@ when {
                         You need to set `essential.loader.modName` in the project's `gradle.properties` file to the name of your mod.
                         For example: `essential.loader.modName=Cool Mod`
                     """.trimIndent())
-            val mixinConfigName = "mixin.essential-loader-stage0.$relocatedPackage.$modName.json"
+            val mixinConfigName = "mixin.essential-loader-stage0.$relocatedPackage.json"
             tasks {
                 val generateEssentialLoaderMixinConfig by registering {
                     inputs.properties(
