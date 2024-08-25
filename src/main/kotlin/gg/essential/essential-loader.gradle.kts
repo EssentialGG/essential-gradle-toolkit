@@ -77,7 +77,7 @@ when {
                 dependsOn(essentialLoader)
                 from({ zipTree(essentialLoader.singleFile) }) {
                     if (!isML8) {
-                        exclude("**/META-INF/services/**")
+                        exclude("META-INF/services/**")
                     }
                 }
             }
