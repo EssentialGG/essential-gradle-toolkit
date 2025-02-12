@@ -227,3 +227,9 @@ if (platform.isModLauncher) {
         ignoreGradleMetadataRedirection()
     }
 }
+
+if (platform.isNeoForge) {
+    repositories {
+        maven("https://maven.neoforged.net/releases/")
+    }
+}
