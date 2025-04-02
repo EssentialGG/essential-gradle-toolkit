@@ -37,6 +37,7 @@ val revisions = mutableListOf<Revision>()
 // one until they opt-in to the new one.
 revisions.add(Revision(
     yarn = mapOf(
+        12105 to "1.21.5+build.1:v2",
         12104 to "1.21.4+build.1:v2",
         12103 to "1.21.3+build.2:v2",
         12102 to "1.21.2+build.1:v2",
@@ -84,6 +85,7 @@ revisions.add(Revision(
     ),
     fabricLoader = "0.13.3",
     forge = mapOf(
+        12105 to "1.21.5-55.0.3",
         12104 to "1.21.4-54.0.26",
         12103 to "1.21.3-53.0.44",
         12101 to "1.21.1-52.0.47",
@@ -118,6 +120,7 @@ revisions.add(Revision(
         10710 to "1.7.10-10.13.4.1558-1.7.10",
     ),
     neoForge = mapOf(
+        12105 to "21.5.22-beta",
         12104 to "21.4.79-beta",
         12103 to "21.3.60",
         12102 to "21.2.1-beta",
