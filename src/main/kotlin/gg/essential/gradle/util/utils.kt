@@ -1,11 +1,11 @@
 package gg.essential.gradle.util
 
-import kotlinx.metadata.jvm.JvmMetadataVersion
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import java.util.Calendar
 import java.util.GregorianCalendar
+import kotlin.metadata.jvm.JvmMetadataVersion
 
 internal fun checkJavaVersion(minVersion: JavaVersion) {
     if (JavaVersion.current() < minVersion) {

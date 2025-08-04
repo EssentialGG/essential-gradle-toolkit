@@ -1,11 +1,6 @@
 package gg.essential.gradle.multiversion
 
 import gg.essential.gradle.util.compatibleKotlinMetadataVersion
-import kotlinx.metadata.KmClassifier
-import kotlinx.metadata.KmType
-import kotlinx.metadata.KmValueParameter
-import kotlinx.metadata.jvm.JvmMetadataVersion
-import kotlinx.metadata.jvm.KotlinClassMetadata
 import org.gradle.api.Project
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction
@@ -30,6 +25,10 @@ import java.io.File
 import java.util.jar.JarInputStream
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
+import kotlin.metadata.KmClassifier
+import kotlin.metadata.KmType
+import kotlin.metadata.KmValueParameter
+import kotlin.metadata.jvm.KotlinClassMetadata
 
 /**
  * Strips all references to classes in the given package(s) from the artifact to which it is applied.

@@ -1,11 +1,6 @@
 package gg.essential.gradle.multiversion
 
 import gg.essential.gradle.util.compatibleKotlinMetadataVersion
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.KmDeclarationContainer
-import kotlinx.metadata.KmPackage
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import kotlinx.metadata.jvm.Metadata
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.objectweb.asm.*
@@ -16,6 +11,11 @@ import org.objectweb.asm.tree.ClassNode
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.metadata.KmClass
+import kotlin.metadata.KmDeclarationContainer
+import kotlin.metadata.KmPackage
+import kotlin.metadata.jvm.KotlinClassMetadata
+import kotlin.metadata.jvm.Metadata
 
 /**
  * Merges classes with a `_platform` suffix into the corresponding class files without the suffix and deletes the
