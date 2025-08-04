@@ -74,7 +74,7 @@ private fun merge(targetBytes: ByteArray, platformBytes: ByteArray): ByteArray {
         // At this point, stuff from the platform class has been merged into the target class, but the merged code
         // may still refer to the platform class if the platform code calls its own methods.
         // To remedy that, we simply remap the platform class name to match the target class name.
-        val remapper = SimpleRemapper(platformNode.name, targetNode.name)
+        val remapper = SimpleRemapper(Opcodes.ASM9, platformNode.name, targetNode.name)
         targetNode.accept(ClassRemapper(this, remapper))
     }.toByteArray()
 }

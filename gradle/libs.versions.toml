@@ -5,7 +5,7 @@ kotlin = "1.9.23"
 kotlinx-binaryCompatibilityValidator = "0.18.1"
 kotlin-metadata-jvm = "2.0.0"
 preprocessor = "289955506"
-asm = "9.6"
+asm = "9.9.1"
 guava = "33.0.0-jre"
 
 [libraries]
