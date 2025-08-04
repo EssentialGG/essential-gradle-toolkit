@@ -4,7 +4,6 @@ import gg.essential.gradle.multiversion.apivalidation.ExtractApiFile
 import gg.essential.gradle.multiversion.apivalidation.MergeApiFiles
 import gg.essential.gradle.util.isMultiversionChildProject
 import gg.essential.gradle.util.multiversionChildProjects
-import org.gradle.api.tasks.Sync
 
 plugins {
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
@@ -32,7 +31,7 @@ subprojects {
             tasks.named("apiCheck") {
                 dependsOn(extractApiDefinition)
             }
-            tasks.named<Sync>("apiDump") {
+            tasks.named("apiDump") {
                 finalizedBy(apiDump)
             }
         }
