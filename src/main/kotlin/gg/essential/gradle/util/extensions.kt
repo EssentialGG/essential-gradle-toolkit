@@ -9,9 +9,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * Sets `-Xjvm-default=mode` on the given task.
  */
 fun KotlinCompile.setJvmDefault(mode: String) {
-    kotlinOptions {
+    compilerOptions {
         val key = "-Xjvm-default="
-        freeCompilerArgs = freeCompilerArgs.filterNot { it.startsWith(key) } + listOf(key + mode)
+        freeCompilerArgs = freeCompilerArgs.get().filterNot { it.startsWith(key) } + listOf(key + mode)
     }
 }
 

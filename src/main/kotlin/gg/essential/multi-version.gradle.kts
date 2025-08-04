@@ -10,6 +10,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -61,13 +62,11 @@ fun configureJavaVersion() {
             jvmToolchain {
                 languageVersion.set(JavaLanguageVersion.of(platform.javaVersion.majorVersion))
             }
-        }
 
-        tasks.withType<KotlinCompile> {
-            kotlinOptions {
+            compilerOptions {
                 // FIXME this should not be necessary because it is implied by the toolchain set above but IDEA seems to not
                 //       recognize that and then errors when compiling
-                jvmTarget = platform.javaVersion.toString()
+                jvmTarget = JvmTarget.fromTarget(platform.javaVersion.toString())
             }
         }
     }
@@ -122,9 +121,9 @@ fun inheritConfigurationFrom(parent: Project) {
 
     afterEvaluate {
         pluginManager.withPlugin("kotlin") {
-            tasks.withType<KotlinCompile> {
-                kotlinOptions {
-                    if (moduleName == null && "-module-name" !in freeCompilerArgs) {
+            configure<KotlinJvmProjectExtension> {
+                compilerOptions {
+                    if (!moduleName.isPresent && "-module-name" !in freeCompilerArgs.get()) {
                         moduleName = project.findProperty("baseArtifactId")?.toString()
                                 ?: parentBase?.archivesName?.orNull
                                 ?: parent.name.lowercase()
