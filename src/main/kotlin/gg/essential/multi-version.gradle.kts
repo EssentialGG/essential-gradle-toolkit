@@ -5,6 +5,7 @@ import com.replaymod.gradle.preprocess.PreprocessPlugin
 import gg.essential.gradle.multiversion.Platform
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap
+import net.fabricmc.loom.task.RunGameTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
@@ -69,6 +70,12 @@ fun configureJavaVersion() {
                 jvmTarget = platform.javaVersion.toString()
             }
         }
+    }
+
+    tasks.withType<RunGameTask>() {
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(platform.javaVersion.majorVersion))
+        })
     }
 }
 
