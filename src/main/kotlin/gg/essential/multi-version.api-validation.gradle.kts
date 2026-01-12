@@ -35,5 +35,11 @@ subprojects {
                 finalizedBy(apiDump)
             }
         }
+
+        // Bump ASM dependencies for Java 25 compatibility
+        dependencies {
+            `bcv-rt-jvm-cp`("org.ow2.asm:asm:9.9.1")
+            `bcv-rt-jvm-cp`("org.ow2.asm:asm-tree:9.9.1")
+        }
     }
 }

@@ -30,6 +30,9 @@ parent?.let(::inheritConfigurationFrom)
 
 fun setupLoomPlugin() {
     extra.set("loom.platform", platform.loaderStr)
+    if (platform.isUnobfuscated) {
+        extra.set("fabric.loom.disableObfuscation", "true")
+    }
 
     apply<LoomGradlePlugin>()
 

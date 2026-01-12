@@ -21,7 +21,10 @@ data class Platform(
     val isModLauncher = isForgeLike && mcVersion >= 11400
     val isLegacyForge = loader == Loader.Forge && mcVersion < 11400
 
+    val isUnobfuscated = mcVersion >= 26_00_00
+
     val javaVersion = when {
+        mcVersion >= 26_00_00 -> JavaVersion.VERSION_25
         mcVersion >= 12005 -> JavaVersion.VERSION_21
         mcVersion >= 11800 -> JavaVersion.VERSION_17
         mcVersion >= 11700 -> JavaVersion.VERSION_16

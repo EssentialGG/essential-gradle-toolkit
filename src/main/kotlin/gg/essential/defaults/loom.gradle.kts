@@ -9,6 +9,15 @@ plugins {
 
 val platform = Platform.of(project)
 
+if (platform.isUnobfuscated) {
+    // Unobfuscated versions of Loom no longer need to remap mod dependencies, and so no longer provide the `mod*`
+    // configurations. We'll re-create them so they can be used across all versions.
+    configurations.api.get().extendsFrom(configurations.create("modApi"))
+    configurations.implementation.get().extendsFrom(configurations.create("modImplementation"))
+    configurations.compileOnly.get().extendsFrom(configurations.create("modCompileOnly"))
+    configurations.runtimeOnly.get().extendsFrom(configurations.create("modRuntimeOnly"))
+}
+
 data class Revision(
     val yarn: Map<Int, String>,
     val mcp: Map<Int, String>,
@@ -210,6 +219,7 @@ dependencies {
     minecraft(prop("minecraft", "com.mojang:minecraft:${platform.mcVersionStr}"))
 
     val mappingsStr = prop("mappings", when {
+        platform.isUnobfuscated -> ""
         platform.isFabric ->
             revision.yarn[platform.mcVersion]?.let { "net.fabricmc:yarn:$it" }
         platform.isForge && platform.mcVersion < 11700 ->
