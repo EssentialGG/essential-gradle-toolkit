@@ -4,6 +4,7 @@ import com.replaymod.gradle.preprocess.PreprocessExtension
 import com.replaymod.gradle.preprocess.PreprocessPlugin
 import gg.essential.gradle.multiversion.Platform
 import net.fabricmc.loom.LoomGradlePlugin
+import net.fabricmc.loom.LoomNoRemapGradlePlugin
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.task.RunGameTask
 import org.gradle.api.Project
@@ -30,11 +31,12 @@ parent?.let(::inheritConfigurationFrom)
 
 fun setupLoomPlugin() {
     extra.set("loom.platform", platform.loaderStr)
-    if (platform.isUnobfuscated) {
-        extra.set("fabric.loom.disableObfuscation", "true")
-    }
 
-    apply<LoomGradlePlugin>()
+    if (platform.isUnobfuscated) {
+        apply<LoomNoRemapGradlePlugin>()
+    } else {
+        apply<LoomGradlePlugin>()
+    }
 
     extensions.configure<LoomGradleExtensionAPI> {
         runConfigs.all {
