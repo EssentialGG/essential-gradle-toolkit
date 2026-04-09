@@ -16,6 +16,7 @@ if (platform.isUnobfuscated) {
     configurations.implementation.get().extendsFrom(configurations.create("modImplementation"))
     configurations.compileOnly.get().extendsFrom(configurations.create("modCompileOnly"))
     configurations.runtimeOnly.get().extendsFrom(configurations.create("modRuntimeOnly"))
+    configurations.localRuntime.get().extendsFrom(configurations.create("modLocalRuntime"))
 }
 
 data class Revision(
